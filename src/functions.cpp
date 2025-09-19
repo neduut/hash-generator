@@ -45,25 +45,56 @@ string readinput() {
 }
 
 string generate_hashe(string user_input){
+    // paverčia į skaičius ir blokus
     string hashe;
-
-    //pavercia i (hex) bitus (vienas ilgas string)
     for (char c : user_input) {
         hashe += to_string(static_cast<int>(c));
     }
 
-    //suskirsto i blokus po 4 bitus
     vector<string> blocks;
     for (size_t i = 0; i < hashe.length(); i += 4) {
         if(i + 4 > hashe.length()) {
-            hashe += string((i + 4) - hashe.length(), '0'); // prideda nulius iki kad gautus pilnas blokas jei neuztenka
+            hashe += string((i + 4) - hashe.length(), '0');
         }
         blocks.push_back(hashe.substr(i, 4));
     }
 
-    return hashe;
+    // sumaišo blokus pastoviai
+    mt19937 gen(42);
+    for (int i = blocks.size() - 1; i > 0; i--) {
+        uniform_int_distribution<> dis(0, i);
+        int j = dis(gen);
+        swap(blocks[i], blocks[j]);
+    }
+
+    // sumaišo kiekvieno bloko simbolius
+    for (auto& block : blocks) {
+        mt19937 gen(42);
+        for (int i = block.size() - 1; i > 0; i--) {
+            uniform_int_distribution<> dis(0, i);
+            int j = dis(gen);
+            swap(block[i], block[j]);
+        }
+    }
+
+    // **sulipdo visus blokus į vieną string**
+    hashe.clear();
+    for (const auto& block : blocks) {
+        hashe += block;
+    }
+
+    // **čia sukuriamas tikras 64 bitų hash** iš sumaišyto stringo
+    unsigned long long hash = 1;
+    for (char c : hashe) {          // naudok hashe, o ne user_input
+        hash = hash ^ (unsigned long long)c;
+        hash = hash * 31;
+    }
+
+    // pavertimas į hex stringą (16 simbolių = 64 bitai)
+    stringstream ss;
+    ss << hex << setw(16) << setfill('0') << hash;
+    return ss.str();
 }
 
-//print_hashe();
 //run_tests();
 //store_hashe();
