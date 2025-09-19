@@ -1,4 +1,5 @@
 **UŽDUOTIS**
+
 Sukurt savo originalu hasho generatoriu, atlikt testus ir tobulint
 
 **HASHO GENERAVIMO EIGA**
