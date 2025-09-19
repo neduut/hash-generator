@@ -47,6 +47,19 @@ string readinput() {
 string generate_hashe(string user_input){
     string hashe;
 
+    //pavercia i (hex) bitus (vienas ilgas string)
+    for (char c : user_input) {
+        hashe += to_string(static_cast<int>(c));
+    }
+
+    //suskirsto i blokus po 4 bitus
+    vector<string> blocks;
+    for (size_t i = 0; i < hashe.length(); i += 4) {
+        if(i + 4 > hashe.length()) {
+            hashe += string((i + 4) - hashe.length(), '0'); // prideda nulius iki kad gautus pilnas blokas jei neuztenka
+        }
+        blocks.push_back(hashe.substr(i, 4));
+    }
 
     return hashe;
 }
