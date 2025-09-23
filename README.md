@@ -29,7 +29,7 @@ Jei masyvas ilgesnis nei seed, cikliškai kartoju seed
 11. Spausdinu galutinį hash
 
 
-**TESTAI**
+**EKSPERIMENTINIS TYRIMAS**
 
 1. Įvedimas – bet kokio ilgio eilutė (string).
 2. Rezultatas – visada vienodo dydžio (pvz., 256 bitai, arba 64 simboliai hex formatu).
@@ -38,3 +38,12 @@ Jei masyvas ilgesnis nei seed, cikliškai kartoju seed
 5. Atsparumas kolizijoms – neturi būti lengva (praktiškai labai sudėtinga) rasti du skirtingus įvedimus, kurie duotų tą patį hash’ą.
 6. Lavinos efektas (angl. Avalanche effect) – pakeitus vieną simbolį, rezultatas pasikeičia iš esmės. 
 
+
+**FAILAI**
+* a.txt – 1 simbolis „a“ (be naujos eilutės).
+* b.txt – 1 simbolis „b“ (be naujos eilutės).
+* empty.txt – tuščias failas (0 baitų).
+* random_2000_A.txt – 2000 atsitiktinių simbolių iš a-zA-Z0-9.
+* random_2000_B.txt – kitas 2000 atsitiktinių simbolių failas.
+* random_2000_M_base.txt – 2000 atsitiktinių simbolių.
+* random_2000_M_variant.txt – identiškas *_M_base.txt, išskyrus 1 vidurinį simbolį (skirtumas ties 1000-uoju indeksu, jei skaičiuojant nuo 0).

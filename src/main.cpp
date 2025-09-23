@@ -5,6 +5,7 @@
 #include "mylib.h"
 #include "functions.h"
 #include "tests.h"
+#include "constants.h"
 
 int main() {
     #ifdef _WIN32
@@ -19,15 +20,15 @@ int main() {
             cout << "Sugeneruotas 64 simbolių hash: " << hashe << endl;
         } catch (const std::exception& e) {
             cerr << e.what() << endl;
-            cout << "Bandykite dar kartą." << endl;
+            cout << TRY_AGAIN_ << endl;
             continue; 
         }
 
         while (true) {
-            cout << "Generuoti dar vieną hash (1) ar užbaigti programą (0)? ";
+            cout << GENERATE_HASH_PROMPT;
             string ans_s;
             if (!std::getline(cin, ans_s)) {
-                cerr << "Klaida: nepavyko perskaityti pasirinkimo." << endl;
+                cerr << DATA_READ_ERROR << endl;
                 return 1;
             }
             // ignoruoju tarpus vartotojo ivedime
@@ -38,8 +39,6 @@ int main() {
             } else if (ans_s == "0") {
                 cout << "Programa baigta." << endl;
                 return 0;
-            } else {
-                cout << "Įveskite 1 arba 0." << endl;
             }
         }
     }
