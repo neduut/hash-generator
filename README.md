@@ -64,10 +64,10 @@ Pasirinkite, ką norite daryti:
 
 **4. `include` katalogas**
 - **`constants.h`** – tekstinės konstantos (meniu, pranešimai), BASE62 simbolių rinkinys ir pan.
-- **`functions.h`** – `generate_hashe(...)` deklaracijos.
-- **`mylib.h`** – bendri `#include`, `using` ir utilitai (patogumui).
-- **`tests.h`** – testų API (pvz., `run_tests_menu()`).
-- **`ui.h`** – UI srauto API (pvz., `run_hash_flow()`).
+- **`functions.h`** – deklaracijos.
+- **`mylib.h`** – bendri `#include`, `using` (patogumui).
+- **`tests.h`** – testų API
+- **`ui.h`** – UI srauto API 
 
 ---
 
