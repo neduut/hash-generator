@@ -5,8 +5,8 @@
 
 #include <filesystem>
 #include <unordered_set>
-#include <cstdlib>       // getenv
-#include <cstring>       // std::strchr
+#include <cstdlib> // getenv
+#include <cstring> // std::strchr
 
 namespace fs = std::filesystem;
 
