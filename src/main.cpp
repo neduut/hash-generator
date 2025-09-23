@@ -1,4 +1,7 @@
 #ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #endif
 
@@ -8,19 +11,19 @@
 #include "constants.h"
 
 int main() {
-    #ifdef _WIN32
-        SetConsoleOutputCP(CP_UTF8); 
-        SetConsoleCP(CP_UTF8);       
-    #endif
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+#endif
 
     while (true) {
         try {
             string user_input = readinput();
             string hashe = generate_hashe(user_input);
-            cout << "Sugeneruotas 64 simbolių hash: " << hashe << endl;
+            cout << "Sugeneruotas 64 simbolių hash: " << hashe << std::endl;
         } catch (const std::exception& e) {
-            cerr << e.what() << endl;
-            cout << TRY_AGAIN_ << endl;
+            cerr << e.what() << std::endl;
+            cout << TRY_AGAIN_ << std::endl;
             continue; 
         }
 
@@ -28,17 +31,19 @@ int main() {
             cout << GENERATE_HASH_PROMPT;
             string ans_s;
             if (!std::getline(cin, ans_s)) {
-                cerr << DATA_READ_ERROR << endl;
+                cerr << DATA_READ_ERROR << std::endl;
                 return 1;
             }
             // ignoruoju tarpus vartotojo ivedime
             ans_s.erase(std::remove(ans_s.begin(), ans_s.end(), ' '), ans_s.end());
 
             if (ans_s == "1") {
-                break;          
+                break;
             } else if (ans_s == "0") {
-                cout << "Programa baigta." << endl;
+                cout << "Programa baigta." << std::endl;
                 return 0;
+            } else {
+                cout << TRY_AGAIN_ << std::endl; 
             }
         }
     }
