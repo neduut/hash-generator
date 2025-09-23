@@ -5,10 +5,12 @@
 #include <windows.h>
 #endif
 
-#include "mylib.h"
-#include "functions.h"
-#include "tests.h"
 #include "constants.h"
+#include "ui.h"
+#include "tests.h"
+#include "mylib.h"
+
+using namespace std;
 
 int main() {
 #ifdef _WIN32
@@ -17,34 +19,25 @@ int main() {
 #endif
 
     while (true) {
-        try {
-            string user_input = readinput();
-            string hashe = generate_hashe(user_input);
-            cout << "Sugeneruotas 64 simbolių hash: " << hashe << std::endl;
-        } catch (const std::exception& e) {
-            cerr << e.what() << std::endl;
-            cout << TRY_AGAIN_ << std::endl;
-            continue; 
+        cout << MENU_TEXT;
+        string choice;
+        if (!getline(cin, choice)) {
+            cerr << DATA_READ_ERROR << endl;
+            return 1;
         }
+        choice.erase(remove(choice.begin(), choice.end(), ' '), choice.end());
 
-        while (true) {
-            cout << GENERATE_HASH_PROMPT;
-            string ans_s;
-            if (!std::getline(cin, ans_s)) {
-                cerr << DATA_READ_ERROR << std::endl;
-                return 1;
-            }
-            // ignoruoju tarpus vartotojo ivedime
-            ans_s.erase(std::remove(ans_s.begin(), ans_s.end(), ' '), ans_s.end());
-
-            if (ans_s == "1") {
-                break;
-            } else if (ans_s == "0") {
-                cout << "Programa baigta." << std::endl;
-                return 0;
-            } else {
-                cout << TRY_AGAIN_ << std::endl; 
-            }
+        if (choice == "1") {
+            run_hash_flow();
+        } else if (choice == "2") {
+            bool ok = run_tests_menu();
+            if (!ok) cerr << TESTS_FAILED_NOTE;
+            cout << RETURN_TO_MENU;
+        } else if (choice == "0") {
+            cout << PROGRAM_FINISHED;
+            return 0;
+        } else {
+            cout << TRY_AGAIN_ << endl;
         }
     }
 }

@@ -1,4 +1,4 @@
 #pragma once
 #include "mylib.h"
 
-bool run_tests_menu();
+void run_hash_flow();

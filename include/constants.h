@@ -22,23 +22,19 @@ inline const std::string ENTER_DATA =
 inline const std::string TRY_AGAIN_ =
     "\nBandykite dar kartą.";
 
+inline const std::string RETURN_TO_MENU   = "\nGrįžtame į pagrindinį meniu.\n";
+inline const std::string PROGRAM_FINISHED = "Programa baigta.\n";
+inline const std::string TESTS_FAILED_NOTE =
+    "\nKai kurie tyrimo testai NEPRAĖJO. Žr. analysis/tests_report.txt\n";
+
 // menu
 inline constexpr char MENU_TEXT[] =
     "\nPasirinkite, ką norite daryti:\n"
     "1 - Generuoti hash\n"
     "2 - Atlikti tyrimą\n"
-    "0 - Nieko nenoriu daryti\n";
+    "0 - Užbaigti programą\n";
 
-inline constexpr char TEST_MENU_TEXT[] =
-    "\nPasirinkite tyrimą:\n"
-    "1 - išvedimo dydis laikas\n"
-    "2 - deterministiškumas\n"
-    "4 - efektyvumas\n"
-    "5 - kolizijų paieška\n"
-    "6 - lavinos efektas\n"
-    "7 - negrįžtamumo demonstracija\n"
-    "8 - užbaigti programą\n";
-
+// failų pasirinkimai
 inline constexpr char ENTER_FILE_NAME[] =
     "\nPasirinkite failą:\n"
     "1 - a.txt\n"

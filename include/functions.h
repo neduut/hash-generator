@@ -1,5 +1,4 @@
 #pragma once
 #include "mylib.h"
 
-string readinput();
-string generate_hashe(const string& user_input);
+std::string generate_hashe(const std::string& user_input);
