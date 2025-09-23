@@ -13,8 +13,9 @@ Tikslas (parasyt i README) - sukurt savo originalu hash generatoriu nežinant ka
 
 1. Kiekvieną simbolį paverčiu ASCII kodu 
 2. Padalinu skaičius į blokus
-2.1 Blokų dydis fiksuotas - 4 skaičiai
-2.2 Jei paskutinis blokas trumpesnis, papildau modulio 64 ziurint nuo pradzios
+* Blokų dydis fiksuotas - 4 skaičiai
+* Jei paskutinis blokas trumpesnis, papildau modulio 64 ziurint nuo pradzios
+* jei įvestis tuščia, įmaišau vieną nulį į ascii_vals, kad visa tolesnė logika veiktų (blokai, reversai, ir t. t.), o rezultatas būtų stabilus.
 3. Apverčiu visų blokų eilę atbuline tvarka
 4. Kiekvieno antro bloko elementus sukeičiu pagal formulę:
 new_index = (index * 3 + 1) % block_size

@@ -75,10 +75,10 @@ void run_hash_flow() {
             ans_s.erase(remove(ans_s.begin(), ans_s.end(), ' '), ans_s.end());
 
             if (ans_s == "1") {
-                break;                  // dar vienas hash
+                break;               
             } else if (ans_s == "0") {
-                cout << "Grįžtame į pagrindinį meniu." << endl;
-                return;                 // atgal į main meniu
+                cout << RETURN_TO_MENU << endl;
+                return;               
             } else {
                 cout << TRY_AGAIN_ << endl;
             }

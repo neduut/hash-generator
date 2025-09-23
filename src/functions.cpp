@@ -48,7 +48,7 @@ namespace {
     // pritaiko permutacijos formule kas antram blokui (zingsnis 4)
     void permute_every_second_block(vector<int>& flat_blocks) {
         for (size_t b = 0; b * 4 < flat_blocks.size(); ++b) {
-            const bool is_second = ((b + 1) % 2 == 0); // 2-as, 4-as, ...
+            const bool is_second = ((b + 1) % 2 == 0); 
             if (!is_second) continue;
             int temp[4];
             // out[new_index] = in[index], kur new_index = (index*3 + 1) % 4
@@ -56,7 +56,7 @@ namespace {
                 int new_index = (index * 3 + 1) % 4;
                 temp[new_index] = flat_blocks[b * 4 + index];
             }
-            for (int i = 0; i < 4; ++i) flat_blocks[b * 4 + i] = temp[i];
+            for (int i = 0; i < 4; ++i) flat_blocks[b*4 + i] = temp[i];
         }
     }
 
@@ -87,8 +87,10 @@ string generate_hashe(const string& user_input) {
     ascii_vals.reserve(user_input.size());
     for (unsigned char c : user_input) ascii_vals.push_back((int)c);
 
+    // LEIDZIU TUSCIA IVESTI:
+    // jei nieko neivesta, imetam viena 0 (deterministinis "empty" atvejis)
     if (ascii_vals.empty()) {
-        throw std::runtime_error(DATA_READ_ERROR + "Įvestis negali būti tuščia.");
+        ascii_vals.push_back(0);
     }
 
     // 2) padalinu skaicius i blokus po 4 su pildymu modulo 64 nuo pradzios
@@ -123,6 +125,12 @@ string generate_hashe(const string& user_input) {
     // 7) padalinu masyva per puse ir sukeiciu dalis vietomis
     swap_halves(blocks_flat);
 
+    // SAUGIKLIS: jei po visu transformaciju masyvas vis dar tuscias (grynai teoretiskai),
+    // kad neivyktu % blocks_flat.size() dalybos is 0 – idedam viena nuli.
+    if (blocks_flat.empty()) {
+        blocks_flat.push_back(0);
+    }
+
     // 8) pradinis seed (kad net trumpas ivedimas duotu 64 simboliu hash)
     string seed = "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6"; // 32 simboliai
 
@@ -138,9 +146,9 @@ string generate_hashe(const string& user_input) {
     out.reserve(64);
     for (int i = 0; i < 64; ++i) {
         int a = (int)(unsigned char)seed[i % seed.size()]; // seed simbolis (ratu)
-        int b = blocks_flat[i % blocks_flat.size()];       // masyvo elementas (ratu)
-        int v = (a + b + i * 17) % 62;                     // pozicijos itaka ir mod 62
-        out.push_back(to_base62(v));                       // pridedu i rezultata
+        int b = blocks_flat[i % blocks_flat.size()]; // masyvo elementas (ratu)
+        int v = (a + b + i * 17) % 62; // pozicijos itaka ir mod 62
+        out.push_back(to_base62(v));                     
     }
 
     return out; // 64 base62 simboliai

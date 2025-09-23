@@ -27,6 +27,12 @@ static void ensure_analysis_dir() {
     fs::create_directories(ANALYSIS_DIR(), ec);
 }
 
+static bool ensure_dir(const string& dir) {
+    std::error_code ec;
+    fs::create_directories(dir, ec);
+    return !ec;
+}
+
 static string now_ts() {
     using clk = std::chrono::system_clock;
     auto t = clk::to_time_t(clk::now());
@@ -57,7 +63,7 @@ struct Logger {
     } \
 } while(0)
 
-// --------- pagalbinės I/O funkcijos ----------
+// --------- failų utilitai (punktas #1) ----------
 
 static bool ensure_file_with_contents(const string& path, const string& contents) {
     ofstream f(path, std::ios::binary);
@@ -74,6 +80,13 @@ static bool read_all_lines(const string& path, vector<string>& out) {
     return true;
 }
 
+static string slurp_file_text(const string& path) {
+    ifstream f(path, std::ios::binary);
+    if (!f) return {};
+    stringstream ss; ss << f.rdbuf();
+    return ss.str();
+}
+
 static string random_string(std::mt19937_64& rng, size_t n) {
     static const string alphabet =
         "0123456789"
@@ -84,6 +97,25 @@ static string random_string(std::mt19937_64& rng, size_t n) {
     string s; s.reserve(n);
     for (size_t i=0;i<n;++i) s.push_back(alphabet[dist(rng)]);
     return s;
+}
+
+static bool write_random_file(const string& path, size_t n_chars) {
+    std::mt19937_64 rng(0xBADC0FFEEULL);
+    string s = random_string(rng, n_chars);
+    return ensure_file_with_contents(path, s);
+}
+
+static bool write_pair_one_diff(const string& base_path, const string& var_path, size_t n_chars) {
+    if (n_chars == 0) return false;
+    std::mt19937_64 rng(0xFEEDFACEULL);
+    string a = random_string(rng, n_chars);
+    string b = a;
+    size_t mid = n_chars / 2;
+    // pakeičiam vidurinį simbolį į kitą
+    for (char c = 32; c < 127; ++c) { if (c != a[mid]) { b[mid] = c; break; } }
+    bool ok1 = ensure_file_with_contents(base_path, a);
+    bool ok2 = ensure_file_with_contents(var_path,  b);
+    return ok1 && ok2;
 }
 
 static inline int base62_index(char c) {
@@ -143,19 +175,34 @@ static bool test_1_output_size() {
     cout << "[RUN] 1 - išvedimo dydis ...\n";
     if (g_log) (*g_log) << "[" << now_ts() << "] RUN 1 - išvedimo dydis\n";
 
+    // vidiniai pavyzdžiai
     vector<string> samples = {
-        "a", "Labas", string(10, 'x'), string(1234, 'y'),
-        "ąčęėįšųūž"
+        "", "a", "Labas", string(10, 'x'), string(1234, 'y'), "ąčęėįšųūž"
     };
     for (auto& s : samples) {
         string h = generate_hashe(s);
         ASSERT_TRUE_RET(h.size() == 64u, "hash dydis turi būti 64");
-        for (char c : h) {
-            ASSERT_TRUE_RET(std::strchr(BASE62, c) != nullptr, "hash simboliai turi būti iš BASE62 rinkinio");
-        }
+        for (char c : h) ASSERT_TRUE_RET(std::strchr(BASE62, c) != nullptr, "hash simboliai turi būti iš BASE62");
     }
 
-    cout << "[OK] 1 baigta.\n";
+    // failai pagal #1 reikalavimą
+    vector<string> files_to_check = {
+        "files/one_a.txt",
+        "files/one_b.txt",
+        "files/empty.txt",
+        "files/random_2000_A.txt",
+        "files/random_2000_B.txt",
+        "files/random_2000_M_base.txt",
+        "files/random_2000_M_variant.txt"
+    };
+    for (auto& p : files_to_check) {
+        string s = slurp_file_text(p);
+        string h = generate_hashe(s);
+        ASSERT_TRUE_RET(h.size() == 64u, string("hash dydis turi būti 64 (") + p + ")");
+        for (char c : h) ASSERT_TRUE_RET(std::strchr(BASE62, c) != nullptr, string("hash simboliai turi būti iš BASE62 (") + p + ")");
+    }
+
+    cout << "OK 1 - išvedimo dydis\n";
     if (g_log) (*g_log) << "OK 1 - išvedimo dydis\n";
     return true;
 }
@@ -164,15 +211,33 @@ static bool test_2_determinism() {
     cout << "[RUN] 2 - deterministiškumas ...\n";
     if (g_log) (*g_log) << "[" << now_ts() << "] RUN 2 - deterministiškumas\n";
 
+    // su atsitiktiniais string’ais
     std::mt19937_64 rng(1234567);
-    for (int i=0;i<20;++i) {
+    for (int i=0;i<10;++i) {
         string s = random_string(rng, 200);
         string h1 = generate_hashe(s);
         string h2 = generate_hashe(s);
-        ASSERT_TRUE_RET(h1 == h2, "tas pats įvedimas turi duoti tą patį hash");
+        ASSERT_TRUE_RET(h1 == h2, "tas pats įvedimas turi duoti tą patį hash (string)");
     }
 
-    cout << "[OK] 2 baigta.\n";
+    // su failais (konkrečiai #1 reikalavimo rinkinys)
+    vector<string> files_to_check = {
+        "files/one_a.txt",
+        "files/one_b.txt",
+        "files/empty.txt",
+        "files/random_2000_A.txt",
+        "files/random_2000_B.txt",
+        "files/random_2000_M_base.txt",
+        "files/random_2000_M_variant.txt"
+    };
+    for (auto& p : files_to_check) {
+        string s = slurp_file_text(p);
+        string h1 = generate_hashe(s);
+        string h2 = generate_hashe(s);
+        ASSERT_TRUE_RET(h1 == h2, string("tas pats FAILAS turi duoti tą patį hash (") + p + ")");
+    }
+
+    cout << "OK 2 - deterministiškumas\n";
     if (g_log) (*g_log) << "OK 2 - deterministiškumas\n";
     return true;
 }
@@ -190,6 +255,8 @@ static bool test_4_performance() {
     }
 
     ensure_analysis_dir();
+
+    // CSV perrašomas kiekvienos sesijos metu
     ofstream csv(PERF_CSV(), std::ios::trunc);
     csv << "lines,avg_ms\n";
 
@@ -218,7 +285,7 @@ static bool test_4_performance() {
         csv << n << "," << fixed << setprecision(2) << avg << "\n";
     }
 
-    cout << "[OK] 4 baigta. Duomenys grafikui: " << PERF_CSV() << "\n";
+    cout << "OK 4 - efektyvumas (CSV parašytas)\n";
     if (g_log) (*g_log) << "OK 4 - efektyvumas (CSV parašytas)\n";
     return true;
 }
@@ -247,7 +314,7 @@ static bool test_5_collisions() {
         rep  << "L=" << len << ", collisions=" << collisions << ", rate=" << fixed << setprecision(6) << rate << "%\n";
     }
 
-    cout << "[OK] 5 baigta. Suvestinė papildyta: " << REPORT_PATH() << "\n";
+    cout << "OK 5 - kolizijos\n";
     if (g_log) (*g_log) << "OK 5 - kolizijos\n";
     return true;
 }
@@ -303,12 +370,7 @@ static bool test_6_avalanche() {
     rep << "hex%   min=" << min_hex
         << "  max=" << max_hex  << "  avg=" << avg_hex  << "\n";
 
-    cout << "  Bitų lygmeniu:   min=" << fixed << setprecision(3) << min_bits
-         << "%  max=" << max_bits << "%  vid=" << avg_bits << "%\n";
-    cout << "  \"Hex\" lygmeniu: min=" << min_hex
-         << "%  max=" << max_hex  << "%  vid=" << avg_hex  << "%\n";
-
-    cout << "[OK] 6 baigta. Suvestinė papildyta: " << REPORT_PATH() << "\n";
+    cout << "OK 6 - lavina\n";
     if (g_log) (*g_log) << "OK 6 - lavina\n";
     return true;
 }
@@ -339,7 +401,8 @@ static bool test_7_hiding() {
         if (g_log) (*g_log) << "FAIL 7 - hiding\n";
         return false;
     }
-    cout << "[OK] 7 baigta. Suvestinė papildyta: " << REPORT_PATH() << "\n";
+
+    cout << "OK 7 - hiding\n";
     if (g_log) (*g_log) << "OK 7 - hiding\n";
     return true;
 }
@@ -359,12 +422,11 @@ static void print_menu() {
         "q - grįžti\n> ";
 }
 
-// Sesijos sargas: visada parašys footerį su separatoriumi, kai išeisim iš run_tests_menu()
+// Sesijos sargas: pabaigoje parašys footerį su separatoriumi
 struct SessionGuard {
     Logger* log;
     ~SessionGuard() {
         if (log) {
-            (*log) << "TEST SESSION END   @ " << now_ts() << "\n";
             (*log) << "========================================\n";
             log->flush();
         }
@@ -372,7 +434,18 @@ struct SessionGuard {
 };
 
 bool run_tests_menu() {
+    ensure_dir("files");
     ensure_analysis_dir();
+
+    // #1: paruošiam reikalaujamus failus
+    (void)ensure_file_with_contents("files/one_a.txt", "a\n");
+    (void)ensure_file_with_contents("files/one_b.txt", "b\n");
+    (void)ensure_file_with_contents("files/empty.txt", "");
+    (void)write_random_file("files/random_2000_A.txt", 2000);
+    (void)write_random_file("files/random_2000_B.txt", 2000);
+    (void)write_pair_one_diff("files/random_2000_M_base.txt",
+                              "files/random_2000_M_variant.txt", 2000);
+
     Logger filelog(REPORT_PATH());
     g_log = &filelog;
 
@@ -381,13 +454,8 @@ bool run_tests_menu() {
     (*g_log) << "TEST SESSION START @ " << now_ts() << "\n";
     g_log->flush();
 
-    // auto-footeris pabaigoje (netechninis „finally“)
+    // auto-footeris pabaigoje
     SessionGuard guard{ g_log };
-
-    // minimalūs failai pradžiai
-    (void)ensure_file_with_contents("files/one_a.txt", "a\n");
-    (void)ensure_file_with_contents("files/one_b.txt", "b\n");
-    (void)ensure_file_with_contents("files/empty.txt", "");
 
     string choice;
     while (true) {
@@ -400,7 +468,6 @@ bool run_tests_menu() {
         choice.erase(remove(choice.begin(), choice.end(), ' '), choice.end());
         if (choice == "q" || choice == "Q") {
             cout << "Išeinama iš tyrimų meniu.\n";
-            (*g_log) << "EXIT tests menu\n";
             g_log->flush();
             return true;
         }
@@ -431,12 +498,10 @@ bool run_tests_menu() {
         }
 
         if (ok) {
-            cout << "\n[SUMMARY] Pasirinktas testas(-ai) BAIGTI SĖKMINGAI. Žr.: "
-                 << REPORT_PATH() << "\n";
+            cout << "SUMMARY: OK\n";
             (*g_log) << "SUMMARY: OK\n";
         } else {
-            cout << "\n[SUMMARY] Kai kurie testai NEPRAĖJO. Žr.: "
-                 << REPORT_PATH() << "\n";
+            cout << "SUMMARY: FAIL\n";
             (*g_log) << "SUMMARY: FAIL\n";
         }
         g_log->flush();
