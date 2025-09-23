@@ -5,6 +5,9 @@
 *.so
 *.a
 *.lib
+*.exe
+*.pdb
+
 
 .vs/
 .vscode/
