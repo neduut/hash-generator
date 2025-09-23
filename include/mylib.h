@@ -16,6 +16,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <exception>
+#include <cassert>
+#include <array>
 
 using std::cin;
 using std::cout;
@@ -25,6 +27,26 @@ using std::string;
 using std::vector;
 using std::ifstream;
 using std::ofstream;
+using std::istream;
+using std::ostream;
 using std::stringstream;
+using std::istringstream;
+using std::ostringstream;
 using std::numeric_limits;
 using std::streamsize;
+using std::setw;
+using std::setprecision;
+using std::setfill;
+using std::left;
+using std::right;
+using std::array;
+using std::fixed;
+using std::sort;
+using std::to_string;
+using std::move;
+using std::mt19937;
+using std::uniform_int_distribution;
+using std::uniform_real_distribution;
+using std::chrono::high_resolution_clock;
+using std::chrono::duration;
+using std::chrono::milliseconds;

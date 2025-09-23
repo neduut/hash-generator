@@ -78,38 +78,50 @@ namespace {
 } // namespace
 
 string readinput() {
-    int choice;
-    vector<string> lines;
+    try {
+        cout << "Įvesti ranka (1) ar skaityti duomenis iš failo (2)? ";
 
-    cout << "Įvesti ranka (1) ar skaityti duomenis iš failo (2)? ";
-    cin >> choice;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    if (choice == 1) {
-        cout << "Įveskite duomenis: ";
-        string s; getline(cin, s);
-        lines.push_back(s);
-    } else if (choice == 2) {
-        ifstream infile("input.txt");
-        if (!infile) {
-            cerr << "Klaida atidarant failą!" << endl;
-            return "";
+        string choice_s;
+        if (!std::getline(cin, choice_s)) {
+            throw std::runtime_error("Klaida: nepavyko perskaityti pasirinkimo.");
         }
-        string line;
-        while (getline(infile, line)) lines.push_back(line);
-        infile.close();
-    } else {
-        cout << "Neteisingas pasirinkimas!" << endl;
-        return "";
-    }
+        // ignoruoju tarpus vartotojo ivedime
+        choice_s.erase(std::remove(choice_s.begin(), choice_s.end(), ' '), choice_s.end());
 
-    // sujungiu eilutes i viena string (palieku tarpa tarp eiluciu)
-    string result;
-    for (size_t i = 0; i < lines.size(); ++i) {
-        result += lines[i];
-        if (i + 1 < lines.size()) result += ' ';
+        int choice = (choice_s == "1" ? 1 : (choice_s == "2" ? 2 : -1));
+        if (choice == -1) {
+            throw std::runtime_error("Klaida: neteisingas pasirinkimas. Įveskite 1 arba 2.");
+        }
+
+        vector<string> lines;
+        if (choice == 1) {
+            cout << "Įveskite duomenis: ";
+            string s;
+            if (!std::getline(cin, s)) {
+                throw std::runtime_error("Klaida: nepavyko perskaityti įvesties.");
+            }
+            lines.push_back(s);
+        } else { // choice == 2
+            ifstream infile("input.txt");
+            if (!infile) {
+                throw std::runtime_error("Klaida: nepavyko atidaryti failo „input.txt“.");
+            }
+            string line;
+            while (std::getline(infile, line)) {
+                lines.push_back(line);
+            }
+        }
+
+        // jungiu eilutes i viena stringa per tarpa
+        string result;
+        for (size_t i = 0; i < lines.size(); ++i) {
+            result += lines[i];
+            if (i + 1 < lines.size()) result += ' ';
+        }
+        return result;
+    } catch (const std::exception& e) {
+        throw std::runtime_error(string("Klaida readinput: ") + e.what());
     }
-    return result;
 }
 
 string generate_hashe(const string& user_input) {
@@ -126,10 +138,12 @@ string generate_hashe(const string& user_input) {
     vector<int> blocks_flat = split_into_blocks_pad4(ascii_vals);
 
     // 3) apverciu bloku eile (po 4 elementus) – bloku lygmeniu
-    vector<array<int,4>> blocks; 
-    for (size_t i = 0; i < blocks_flat.size(); i += 4) // issskaidau masyva i blokus po 4
-        blocks.push_back({blocks_flat[i+0], blocks_flat[i+1], 
-                          blocks_flat[i+2], blocks_flat[i+3]});
+    vector<std::array<int,4>> blocks;
+
+    for (size_t i = 0; i < blocks_flat.size(); i += 4) { // isskaidau masyva i blokus po 4
+        blocks.push_back(std::array<int,4>{ 
+            blocks_flat[i+0], blocks_flat[i+1], blocks_flat[i+2], blocks_flat[i+3]});
+    }
 
     std::reverse(blocks.begin(), blocks.end()); // apverciu bloku tvarka
 
