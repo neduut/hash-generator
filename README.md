@@ -223,10 +223,9 @@ q - grįžti
 
 * [ ] Įdiegti daugiau raundų
 * [ ] Pritaikyt OpenMP/OpenCL
-* [ ] Naudoti nelinearias operacijas (XOR, rotacijas)
+* [ ] Naudoti daugiau rotacijų
 * [ ] Pagerinti maišymą su seed
-* [ ] Įtraukti finalinį „whitening“ etapą
-* [ ] Negrįžtamumo demonstracija
+* [ ] Negrįžtamumo demonstracija?
 * [ ] Papildomos palyginimo BONUS užduotys
 
 ---
