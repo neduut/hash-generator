@@ -1,5 +1,11 @@
 # Hash generatorius (v0.1)
 
+## Apie projektą
+
+**UŽDUOTIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
+
+---
+
 ## TURINYS
 
 * [Apie projektą](#apie-projektą)
@@ -18,12 +24,6 @@
 * [Rezultatų santrauka](#rezultatų-santrauka-2025-09-23-sesija)
 * [Tolimesni darbai](#tolimesni-darbai-tobulinimo-kryptys)
 * [Changelog](#changelog)
-
----
-
-## Apie projektą
-
-**UŽDUOTIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
 
 ---
 
