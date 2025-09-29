@@ -108,7 +108,18 @@ Pasirinkite, ką norite daryti:
 ### 1 užduotis: įdiegti daugiau roundų
 
 Avalanche efekto analizė pagal roundus su laiko palyginimu:
-![alt text](image.png)
+
+| Roundai | Bits% avg | Hex% avg | Vertinimas | Avalanche laikas | Efektyvumo santykis |
+|---------|-----------|----------|------------|------------------|-------------------|
+| **1**   | 1.516     | 2.550    | Per silpnas | ~6s             | Greičiausias |
+| **2**   | 2.949     | 4.944    | Silpnas     | ~18s            | Labai greitas |
+| **3**   | 4.327     | 7.237    | Vidutinis   | ~24s            | Greitas |
+| **4**   | 5.666     | 9.471    | Geras       | ~31s            | **Optimalus** |
+| **6**   | 5.615     | 9.391    | Geras       | ~43s            | Geras |
+| **8**   | 5.547     | 9.286    | Geras       | ~55s            | Vidutinis |
+| **10**  | 5.531     | 9.258    | Geras       | ~68s            | Lėtokas |
+| **20**  | 5.558     | 9.291    | Geras       | ~133s           | Lėtas |
+| **32**  | 5.453     | 9.139    | Geras       | ~206s           | Labai lėtas |
 
 IŠVADA: pritaikytas 4 roundų patobulinimas
 
