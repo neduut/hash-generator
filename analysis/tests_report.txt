@@ -311,3 +311,36 @@ OK 6 - lavina
 [2025-09-24 13:50:21] RUN 7 - hiding
 OK 7 - hiding
 SUMMARY: OK
+========================================
+TEST SESSION START @ 2025-09-29 21:26:02
+
+[COLLISIONS] 2025-09-29 21:26:04  NUM_PAIRS=100000
+L=10, collisions=0, rate=0.000000%
+L=100, collisions=0, rate=0.000000%
+L=500, collisions=0, rate=0.000000%
+L=1000, collisions=0, rate=0.000000%
+
+[AVALANCHE] 2025-09-29 21:26:21  NUM_PAIRS=100000 LEN=200
+bits%  min=0.000  max=10.417  avg=5.666
+hex%   min=0.000  max=12.500  avg=9.471
+
+[HIDING] 2025-09-29 21:26:21
+salt="salt1" -> D9nKAUcyVuauyh4R7Ahx6SkKRXM4kCDmKImPeO0d2xa39Ur3SfkeOEIoGyRUpFAi
+salt="salt1" -> D9nKAUcyVuauyh4R7Ahx6SkKRXM4kCDmKImPeO0d2xa39Ur3SfkeOEIoGyRUpFAi
+salt="salt2" -> D9sLAUczVuauyh4R7Ahx6SkKRXM4kCDnKIrQeO0e2xa39Ur3SfkeOEIoGyRUpFAj
+salt="ilgesnis_saltas_123" -> hUlCG6bdnjfY7H5BIGpUzK19hvRXjITs0GrAfLZSDdUSIksN8GsBhwpN66WNoLQe
+salt="!" -> 9KdtR16bTNgMoKQzKuD4oTrO1sNHCCA8pEaqsES8EsmK6wEez5DDtWO0rQQoWwYM
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> 8NUqEyrzcmPsREjQDDrvfjVfgDc7xI37oHRnfbdwX1Vqzq7vser4kmirG1fORCrL
+[2025-09-29 21:26:04] RUN 1 - išvedimo dydis
+OK 1 - išvedimo dydis
+[2025-09-29 21:26:04] RUN 2 - deterministiškumas
+OK 2 - deterministiškumas
+[2025-09-29 21:26:04] RUN 4 - efektyvumas
+OK 4 - efektyvumas (CSV parašytas)
+[2025-09-29 21:26:04] RUN 5 - kolizijos (100000 porų)
+OK 5 - kolizijos
+[2025-09-29 21:26:19] RUN 6 - lavina (100000 porų)
+OK 6 - lavina
+[2025-09-29 21:26:21] RUN 7 - hiding
+OK 7 - hiding
+SUMMARY: OK

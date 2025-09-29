@@ -109,23 +109,55 @@ Pasirinkite, ką norite daryti:
 
 Avalanche efekto analizė pagal roundus su laiko palyginimu:
 ![alt text](image.png)
-Roundai	Bits% avg	Hex% avg	Vertinimas	Avalanche laikas	Efektyvumo santykis
-1	1.516	2.550	Per silpnas	~6s	Greičiausias
-2	2.949	4.944	Silpnas	~18s	Labai greitas
-3	4.327	7.237	Vidutinis	~24s	Greitas
-4	5.666	9.471	Geras	~31s	Optimalus
-6	5.615	9.391	Geras	~43s	Geras
-8	5.547	9.286	Geras	~55s	Vidutinis
-10	5.531	9.258	Geras	~68s	Lėtokas
-20	5.558	9.291	Geras	~133s	Lėtas
-32	5.453	9.139	Geras	~206s	Labai lėtas
 
 IŠVADA: pritaikytas 4 roundų patobulinimas
 
+### 2 užduotis: pritaikyt OpenMP/OpenCL
 
+Pasiskaičius pasirinkau OpenMP, nes lengvesnė implementacija, mažiau kodo pakeitimų ir geriau tinka mano algoritmui, nes jis turi daug dependency
 
+`functions.cpp` optimizuotas:
+* ASCII konvertavimas 
+* Seed maišymas 
+* Galutinio hash generavimas 
 
+Atlikti laiko matavimo testai, pilni rezultatai faile: `OPENMP_ANALYSIS.md`
+**Input: 100 simbolių**
+| Threads | OpenMP (μs) | Sequential (μs) | Speedup | Lėtėjimas |
+|---------|-------------|-----------------|---------|-----------|
+| 1       | 37.6        | 5.1             | 0.14x   | **7x lėtesnis** |
+| 2       | 181.0       | 5.1             | 0.03x   | **35x lėtesnis** |
+| 4       | 218.9       | 5.1             | 0.02x   | **43x lėtesnis** |
+| 8       | 360.3       | 5.1             | 0.01x   | **71x lėtesnis** |
+| 16      | 588.8       | 5.1             | 0.01x   | **115x lėtesnis** |
+| 24      | 811.4       | 5.1             | 0.01x   | **159x lėtesnis** |
 
+**Input: 1000 simbolių**
+| Threads | OpenMP (μs) | Sequential (μs) | Speedup | Lėtėjimas |
+|---------|-------------|-----------------|---------|-----------|
+| 1       | 131.9       | 39.2            | 0.30x   | **3x lėtesnis** |
+| 2       | 321.8       | 39.2            | 0.12x   | **8x lėtesnis** |
+| 4       | 418.3       | 39.2            | 0.09x   | **11x lėtesnis** |
+| 8       | 677.2       | 39.2            | 0.06x   | **17x lėtesnis** |
+| 16      | 775.4       | 39.2            | 0.05x   | **20x lėtesnis** |
+| 24      | 980.9       | 39.2            | 0.04x   | **25x lėtesnis** |
+
+Testuose matyti, jog algoritmas su pritaikytu OpenMP veikia daug lėčiau, nesvarbu ar naudojant porą thread ar 24, ar mažesnį failą ar didesnį. 
+
+IŠVADA: OpenMP NETINKA šiam algoritmui
+
+### 3 užduotis: patikrinti optimizavimo vėliavėles
+
+Atlikti laiko matavimo testai, pilni rezultatai faile: `OPTIMIZATION_FLAGS_ANALYSIS.md)`
+
+| Flag   | 10 chars | 100 chars | 500 chars | 1000 chars | Avg Speedup |
+|--------|----------|-----------|-----------|------------|-------------|
+| **-O1** | 3.9x     | 5.7x      | 7.7x      | 9.9x       | **6.8x** |
+| **-O2** | 5.2x     | 6.3x      | 5.5x      | 5.9x       | **5.7x** |
+| **-O3** | 6.7x     | 7.2x      | 8.2x      | 8.1x       | **7.5x** |
+| **-Ofast** | 5.1x  | 8.4x      | 4.3x      | 5.1x       | **5.7x** |
+
+IŠVADA: pakeičiau iš -O2 į -03
 
 ---
 
@@ -236,13 +268,14 @@ q - grįžti
 ## Tolimesni darbai
 
 * [+] Įdiegti daugiau raundų
-* [ ] Pritaikyt OpenMP/OpenCL
-* [ ] Naudoti nelinearias operacijas (XOR, rotacijas)
+* [-] Pritaikyt OpenMP/OpenCL
+* [ ] Pakoreguot algortimą, kad pavyktų pritaikyt OpenMP
+* [+] Patikrint optimizavimo vėliavėles
 * [ ] Pagerinti maišymą su seed
-* [ ] Įtraukti finalinį „whitening“ etapą
 * [ ] Negrįžtamumo demonstracija
 * [ ] Papildomos palyginimo BONUS užduotys
 * [ ] Pataisyt rezultatus ir rezultatu santrauka
+* [ ] Pasiaiškint kaip ten ar greitis tikrai linijinis?
 
 ---
 
