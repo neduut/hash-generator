@@ -87,68 +87,81 @@ string generate_hashe(const string& user_input) {
     ascii_vals.reserve(user_input.size());
     for (unsigned char c : user_input) ascii_vals.push_back((int)c);
 
-    // LEIDZIU TUSCIA IVESTI:
-    // jei nieko neivesta, imetam viena 0 (deterministinis "empty" atvejis)
+    // leidziu tuscia ivesti
     if (ascii_vals.empty()) {
         ascii_vals.push_back(0);
     }
 
-    // 2) padalinu skaicius i blokus po 4 su pildymu modulo 64 nuo pradzios
-    vector<int> blocks_flat = split_into_blocks_pad4(ascii_vals);
-
-    // 3) apverciu bloku eile (po 4 elementus) – bloku lygmeniu
-    vector<std::array<int,4>> blocks;
-    for (size_t i = 0; i < blocks_flat.size(); i += 4) {
-        blocks.push_back(std::array<int,4>{
-            blocks_flat[i+0], blocks_flat[i+1], blocks_flat[i+2], blocks_flat[i+3]
-        });
-    }
-    std::reverse(blocks.begin(), blocks.end()); // apverciu bloku tvarka
-
-    blocks_flat.clear();
-    blocks_flat.reserve(blocks.size() * 4);
-    for (auto &b : blocks) { // 5) vel sujungiu i viena masyva
-        blocks_flat.push_back(b[0]);
-        blocks_flat.push_back(b[1]);
-        blocks_flat.push_back(b[2]);
-        blocks_flat.push_back(b[3]);
-    }
-
-    // 4) kiekvieno antro bloko elementus sukeiciu pagal formule
-    permute_every_second_block(blocks_flat);
-
-    // 5) visi blokai sujungti i viena masyva (blocks_flat) jau padaryta anksciau
-
-    // 6) apverciu visa masyva
-    reverse_all(blocks_flat);
-
-    // 7) padalinu masyva per puse ir sukeiciu dalis vietomis
-    swap_halves(blocks_flat);
-
-    // SAUGIKLIS: jei po visu transformaciju masyvas vis dar tuscias (grynai teoretiskai),
-    // kad neivyktu % blocks_flat.size() dalybos is 0 – idedam viena nuli.
-    if (blocks_flat.empty()) {
-        blocks_flat.push_back(0);
-    }
+    // viskas vyksta 8 ROUNDUS
+    constexpr int ROUNDS = 4;
 
     // 8) pradinis seed (kad net trumpas ivedimas duotu 64 simboliu hash)
     string seed = "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6"; // 32 simboliai
 
-    // 9) kiekviena masyvo elementa imaisau i seed simboli
-    for (size_t i = 0; i < blocks_flat.size(); ++i) {
-        size_t si = i % seed.size(); // seed indeksa sukame ratu
-        int sum = (int)(unsigned char)seed[si] + blocks_flat[i]; // seed ascii + masyvo elementas
-        seed[si] = to_base62(sum % 62); // mod 62 -> base62 simbolis
+    // "state" – einamojo raundo įėjimas; pradedam nuo ASCII
+    vector<int> state = ascii_vals;
+
+    // paskutinio raundo blocks_flat saugosim čia – bus reikalingas finalui
+    vector<int> blocks_flat;
+
+    for (int r = 0; r < ROUNDS; ++r) {
+        // 2) padalinu skaicius i blokus po 4 su pildymu modulo 64 nuo pradzios
+        blocks_flat = split_into_blocks_pad4(state);
+
+        // 3) apverciu bloku eile (po 4 elementus) – bloku lygmeniu
+        vector<std::array<int,4>> blocks;
+        blocks.reserve(blocks_flat.size() / 4);
+        for (size_t i = 0; i < blocks_flat.size(); i += 4) {
+            blocks.push_back(std::array<int,4>{
+                blocks_flat[i+0], blocks_flat[i+1], blocks_flat[i+2], blocks_flat[i+3]
+            });
+        }
+        std::reverse(blocks.begin(), blocks.end()); // apverciu bloku tvarka
+
+        blocks_flat.clear();
+        blocks_flat.reserve(blocks.size() * 4);
+        for (auto &b : blocks) { // 5) vel sujungiu i viena masyva
+            blocks_flat.push_back(b[0]);
+            blocks_flat.push_back(b[1]);
+            blocks_flat.push_back(b[2]);
+            blocks_flat.push_back(b[3]);
+        }
+
+        // 4) kiekvieno antro bloko elementus sukeiciu pagal formule
+        permute_every_second_block(blocks_flat);
+
+        // 5) visi blokai sujungti i viena masyva (blocks_flat) jau padaryta anksciau
+
+        // 6) apverciu visa masyva
+        reverse_all(blocks_flat);
+
+        // 7) padalinu masyva per puse ir sukeiciu dalis vietomis
+        swap_halves(blocks_flat);
+
+        // jei tuscias (pvz. ivesta tuscia eilute), tai kad nebutu problemu
+        if (blocks_flat.empty()) {
+            blocks_flat.push_back(0);
+        }
+
+        // 9) kiekviena masyvo elementa imaisau i seed simboli
+        for (size_t i = 0; i < blocks_flat.size(); ++i) {
+            size_t si = i % seed.size(); // seed indeksa sukame ratu
+            int sum = (int)(unsigned char)seed[si] + blocks_flat[i]; // seed ascii + masyvo elementas
+            seed[si] = to_base62(sum % 62); // mod 62 -> base62 simbolis
+        }
+
+        // kitas raundas naudos dabartini masyva
+        state = blocks_flat;
     }
 
-    // 10–11) sukuriu galutini hash – 64 base62 simboliai
+    // 10–11) sukuriu galutini hash – 64 base62 simboliai (naudojam paskutinio raundo blocks_flat)
     string out;
     out.reserve(64);
     for (int i = 0; i < 64; ++i) {
         int a = (int)(unsigned char)seed[i % seed.size()]; // seed simbolis (ratu)
         int b = blocks_flat[i % blocks_flat.size()]; // masyvo elementas (ratu)
         int v = (a + b + i * 17) % 62; // pozicijos itaka ir mod 62
-        out.push_back(to_base62(v));                     
+        out.push_back(to_base62(v));
     }
 
     return out; // 64 base62 simboliai

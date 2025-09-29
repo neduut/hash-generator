@@ -1,4 +1,4 @@
-# Hash generatorius (v0.1)
+# Hash generatorius (v0.11)
 
 ## Apie projektą
 
@@ -9,11 +9,11 @@
 ## TURINYS
 
 * [Apie projektą](#apie-projektą)
-* [Kaip paleisti](#kaip-paleisti)
 * [Meniu](#meniu)
 * [Vartotojo įvestis](#vartotojo-įvestis)
 * [Projekto struktūra](#projekto-struktūra)
 * [Hash’o generavimo eiga](#hasho-generavimo-eiga-v01)
+* [Versija v0.11](#versija-v0.11)
 * [Eksperimentinis tyrimas (testai)](#eksperimentinis-tyrimas-testai)
   * [1) Išvedimo dydis](#1-išvedimo-dydis-64-simboliai)
   * [2) Deterministiškumas](#2-deterministiškumas)
@@ -27,19 +27,6 @@
 
 ---
 
-## Kaip paleisti
-
-```bash
-# kompiliacija
-make
-
-# programa
-./main.exe   # Windows
-# arba
-./main       # Linux/macOS
-```
-
----
 
 ## Meniu
 
@@ -97,11 +84,12 @@ Pasirinkite, ką norite daryti:
 
 ---
 
-## HASH’O GENERAVIMO EIGA (v0.1)
+## HASH’O GENERAVIMO EIGA (v0.11)
 
 > **Tikslas:** sukurti **savo** originalų hash’ą, nenaudojant kriptografinių hash’ų bibliotekų.
 
 1. ASCII → kodai
+2. viską kartoju keturis roundus
 2. Blokavimas (po 4, papildymas)
 3. Apverčiu blokų eilę
 4. Permutuoju kas antrą bloką
@@ -112,6 +100,32 @@ Pasirinkite, ką norite daryti:
 9. Maišymas su seed
 10. Base62 kodavimas
 11. 64 simbolių rezultatas
+
+---
+
+## VERSIJA v0.11
+
+### 1 užduotis: įdiegti daugiau roundų
+
+Avalanche efekto analizė pagal roundus su laiko palyginimu:
+![alt text](image.png)
+Roundai	Bits% avg	Hex% avg	Vertinimas	Avalanche laikas	Efektyvumo santykis
+1	1.516	2.550	Per silpnas	~6s	Greičiausias
+2	2.949	4.944	Silpnas	~18s	Labai greitas
+3	4.327	7.237	Vidutinis	~24s	Greitas
+4	5.666	9.471	Geras	~31s	Optimalus
+6	5.615	9.391	Geras	~43s	Geras
+8	5.547	9.286	Geras	~55s	Vidutinis
+10	5.531	9.258	Geras	~68s	Lėtokas
+20	5.558	9.291	Geras	~133s	Lėtas
+32	5.453	9.139	Geras	~206s	Labai lėtas
+
+IŠVADA: pritaikytas 4 roundų patobulinimas
+
+
+
+
+
 
 ---
 
@@ -209,25 +223,26 @@ q - grįžti
 
 ---
 
-## Rezultatų santrauka (2025-09-23 sesija)
+## Rezultatų santrauka (2025-09-29 sesija)
 
-* ✅ Ilgis – visada 64 simboliai
-* ✅ Deterministiškumas – užtikrintas
-* ⚠️ Lavina – labai silpna (~1.5% vietoj ~50%)
-* ⚠️ Kolizijos – nepastebėtos, bet negarantuota
-* ℹ️ Efektyvumas – artimas linijiniam
+* ✅ Ilgis – visada 64 simboliai?
+* ✅ Deterministiškumas – užtikrintas?
+* ⚠️ Lavina – labai silpna (~1.5% vietoj ~50%)?
+* ⚠️ Kolizijos – nepastebėtos, bet negarantuota?
+* ℹ️ Efektyvumas – artimas linijiniam?
 
 ---
 
 ## Tolimesni darbai
 
-* [ ] Įdiegti daugiau raundų
+* [+] Įdiegti daugiau raundų
 * [ ] Pritaikyt OpenMP/OpenCL
 * [ ] Naudoti nelinearias operacijas (XOR, rotacijas)
 * [ ] Pagerinti maišymą su seed
 * [ ] Įtraukti finalinį „whitening“ etapą
 * [ ] Negrįžtamumo demonstracija
 * [ ] Papildomos palyginimo BONUS užduotys
+* [ ] Pataisyt rezultatus ir rezultatu santrauka
 
 ---
 
