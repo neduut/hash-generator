@@ -5,10 +5,17 @@
 
 #include <filesystem>
 #include <unordered_set>
-#include <cstdlib> // getenv
-#include <cstring> // std::strchr
+#include <utility>     // std::pair
+#include <cstdlib>     // getenv
+#include <cstring>     // std::strchr
+#include <omp.h>       // OpenMP for parallel tests
 
 namespace fs = std::filesystem;
+
+// Set optimal thread count for maximum performance
+static void set_optimal_threads() {
+    omp_set_num_threads(24);
+}
 
 // --------- bendra konfigūracija / utils ----------
 
@@ -293,26 +300,54 @@ static bool test_4_performance() {
 static bool test_5_collisions() {
     const int NUM_PAIRS = env_int("TEST_NUM_PAIRS", 100000);
     cout << "[RUN] 5 - kolizijų paieška ... (porų: " << NUM_PAIRS << " kiekvienam ilgiui)\n";
-    if (g_log) (*g_log) << "[" << now_ts() << "] RUN 5 - kolizijos (" << NUM_PAIRS << " porų)\n";
+    if (g_log) (*g_log) << "[" << now_ts() << "] RUN 5 - kolizijos (" << NUM_PAIRS << " porų), threads=" << omp_get_max_threads() << "\n";
 
     vector<size_t> L = {10, 100, 500, 1000};
     std::mt19937_64 rng(777);
 
     ensure_analysis_dir();
     ofstream rep(REPORT_PATH(), std::ios::app);
-    rep << "\n[COLLISIONS] " << now_ts() << "  NUM_PAIRS=" << NUM_PAIRS << "\n";
+    rep << "\n[COLLISIONS] " << now_ts() << "  NUM_PAIRS=" << NUM_PAIRS << " THREADS=" << omp_get_max_threads() << "\n";
+
+    auto test_start = std::chrono::high_resolution_clock::now();
 
     for (size_t len : L) {
+        auto len_start = std::chrono::high_resolution_clock::now();
         size_t collisions = 0;
-        for (int i=0;i<NUM_PAIRS;++i) {
-            string s1 = random_string(rng, len);
-            string s2 = random_string(rng, len);
-            if (generate_hashe(s1) == generate_hashe(s2)) ++collisions;
+        
+        // Generate all test data first (thread-safe)
+        vector<std::pair<string, string>> test_pairs;
+        test_pairs.reserve(NUM_PAIRS);
+        for (int i = 0; i < NUM_PAIRS; ++i) {
+            test_pairs.emplace_back(random_string(rng, len), random_string(rng, len));
         }
+        
+        auto compute_start = std::chrono::high_resolution_clock::now();
+        
+        // Parallel collision detection
+        #pragma omp parallel for reduction(+:collisions)
+        for (int i = 0; i < NUM_PAIRS; ++i) {
+            if (generate_hashe(test_pairs[i].first) == generate_hashe(test_pairs[i].second)) {
+                ++collisions;
+            }
+        }
+        
+        auto compute_end = std::chrono::high_resolution_clock::now();
+        auto compute_ms = std::chrono::duration_cast<std::chrono::milliseconds>(compute_end - compute_start).count();
+        auto len_ms = std::chrono::duration_cast<std::chrono::milliseconds>(compute_end - len_start).count();
+        
         double rate = 100.0 * collisions / double(NUM_PAIRS);
-        cout << "  L=" << len << ": " << collisions << " kolizijų (" << fixed << setprecision(6) << rate << "%)\n";
-        rep  << "L=" << len << ", collisions=" << collisions << ", rate=" << fixed << setprecision(6) << rate << "%\n";
+        cout << "  L=" << len << ": " << collisions << " kolizijų (" << fixed << setprecision(6) << rate << "%) - " 
+             << compute_ms << "ms (total: " << len_ms << "ms)\n";
+        rep  << "L=" << len << ", collisions=" << collisions << ", rate=" << fixed << setprecision(6) << rate 
+             << "%, compute_time=" << compute_ms << "ms, total_time=" << len_ms << "ms\n";
     }
+
+    auto test_end = std::chrono::high_resolution_clock::now();
+    auto total_ms = std::chrono::duration_cast<std::chrono::milliseconds>(test_end - test_start).count();
+    
+    cout << "  BENDRAS laikas: " << total_ms << "ms (optimizuota paralelizacija)\n";
+    rep << "TOTAL_TIME=" << total_ms << "ms, THREADS=" << omp_get_max_threads() << "\n";
 
     cout << "OK 5 - kolizijos\n";
     if (g_log) (*g_log) << "OK 5 - kolizijos\n";
@@ -323,48 +358,96 @@ static bool test_6_avalanche() {
     const int NUM_PAIRS = env_int("TEST_NUM_PAIRS", 100000);
     const size_t LEN = 200;
     cout << "[RUN] 6 - lavinos efektas ... (porų: " << NUM_PAIRS << ", ilgis=" << LEN << ")\n";
-    if (g_log) (*g_log) << "[" << now_ts() << "] RUN 6 - lavina (" << NUM_PAIRS << " porų)\n";
+    if (g_log) (*g_log) << "[" << now_ts() << "] RUN 6 - lavina (" << NUM_PAIRS << " porų), threads=" << omp_get_max_threads() << "\n";
+
+    auto test_start = std::chrono::high_resolution_clock::now();
 
     std::mt19937_64 rng(12345);
     uniform_int_distribution<int> posd(0, int(LEN-1));
     uniform_int_distribution<int> chard(32, 126);
 
-    double min_bits = 100.0, max_bits = 0.0, sum_bits = 0.0;
-    double min_hex  = 100.0, max_hex  = 0.0, sum_hex  = 0.0;
-
-    for (int i=0;i<NUM_PAIRS;++i) {
+    // Generate all test data first (thread-safe)
+    auto data_start = std::chrono::high_resolution_clock::now();
+    vector<std::pair<string, string>> test_pairs;
+    test_pairs.reserve(NUM_PAIRS);
+    for (int i = 0; i < NUM_PAIRS; ++i) {
         string a = random_string(rng, LEN);
         string b = a;
         int pos = posd(rng);
         char newc;
         do { newc = char(chard(rng)); } while (newc == a[pos]);
         b[pos] = newc;
+        test_pairs.emplace_back(move(a), move(b));
+    }
+    auto data_end = std::chrono::high_resolution_clock::now();
+    auto data_ms = std::chrono::duration_cast<std::chrono::milliseconds>(data_end - data_start).count();
 
-        string h1 = generate_hashe(a);
-        string h2 = generate_hashe(b);
+    double min_bits = 100.0, max_bits = 0.0, sum_bits = 0.0;
+    double min_hex  = 100.0, max_hex  = 0.0, sum_hex  = 0.0;
 
-        double db = hamming_bits_base62(h1, h2);
-        double dh = hex_level_diff_percent(h1, h2);
+    auto compute_start = std::chrono::high_resolution_clock::now();
 
-        min_bits = std::min(min_bits, db);
-        max_bits = std::max(max_bits, db);
-        sum_bits += db;
+    // Parallel avalanche computation with thread-local min/max tracking
+    #pragma omp parallel
+    {
+        double local_min_bits = 100.0, local_max_bits = 0.0, local_sum_bits = 0.0;
+        double local_min_hex  = 100.0, local_max_hex  = 0.0, local_sum_hex  = 0.0;
+        
+        #pragma omp for
+        for (int i = 0; i < NUM_PAIRS; ++i) {
+            string h1 = generate_hashe(test_pairs[i].first);
+            string h2 = generate_hashe(test_pairs[i].second);
 
-        min_hex = std::min(min_hex, dh);
-        max_hex = std::max(max_hex, dh);
-        sum_hex += dh;
+            double db = hamming_bits_base62(h1, h2);
+            double dh = hex_level_diff_percent(h1, h2);
 
-        if ((i+1) % 20000 == 0) {
-            cout << "  progreso: " << (i+1) << "/" << NUM_PAIRS << "\n";
+            local_min_bits = std::min(local_min_bits, db);
+            local_max_bits = std::max(local_max_bits, db);
+            local_sum_bits += db;
+
+            local_min_hex = std::min(local_min_hex, dh);
+            local_max_hex = std::max(local_max_hex, dh);
+            local_sum_hex += dh;
+
+            // Progress reporting from thread 0 only
+            if (omp_get_thread_num() == 0 && (i+1) % 20000 == 0) {
+                auto prog_time = std::chrono::high_resolution_clock::now();
+                auto prog_ms = std::chrono::duration_cast<std::chrono::milliseconds>(prog_time - compute_start).count();
+                cout << "  progreso: " << (i+1) << "/" << NUM_PAIRS << " (" << prog_ms << "ms)\n";
+            }
+        }
+        
+        // Combine results from all threads
+        #pragma omp critical
+        {
+            min_bits = std::min(min_bits, local_min_bits);
+            max_bits = std::max(max_bits, local_max_bits);
+            sum_bits += local_sum_bits;
+            
+            min_hex = std::min(min_hex, local_min_hex);
+            max_hex = std::max(max_hex, local_max_hex);
+            sum_hex += local_sum_hex;
         }
     }
+
+    auto compute_end = std::chrono::high_resolution_clock::now();
+    auto compute_ms = std::chrono::duration_cast<std::chrono::milliseconds>(compute_end - compute_start).count();
 
     double avg_bits = sum_bits / NUM_PAIRS;
     double avg_hex  = sum_hex  / NUM_PAIRS;
 
+    auto test_end = std::chrono::high_resolution_clock::now();
+    auto total_ms = std::chrono::duration_cast<std::chrono::milliseconds>(test_end - test_start).count();
+
+    cout << "  LAIKAI: duomenų generavimas=" << data_ms << "ms, skaičiavimai=" << compute_ms << "ms, bendras=" << total_ms << "ms\n";
+    cout << "  GREITIS: " << fixed << setprecision(1) 
+         << (double(NUM_PAIRS * 2) / compute_ms * 1000.0) << " hash/s (optimizuota paralelizacija)\n";
+
     ensure_analysis_dir();
     ofstream rep(REPORT_PATH(), std::ios::app);
-    rep << "\n[AVALANCHE] " << now_ts() << "  NUM_PAIRS=" << NUM_PAIRS << " LEN=" << LEN << "\n";
+    rep << "\n[AVALANCHE] " << now_ts() << "  NUM_PAIRS=" << NUM_PAIRS << " LEN=" << LEN << " THREADS=" << omp_get_max_threads() << "\n";
+    rep << "TIMING: data_gen=" << data_ms << "ms, compute=" << compute_ms << "ms, total=" << total_ms << "ms\n";
+    rep << "THROUGHPUT: " << fixed << setprecision(1) << (double(NUM_PAIRS * 2) / compute_ms * 1000.0) << " hash/s\n";
     rep << "bits%  min=" << fixed << setprecision(3) << min_bits
         << "  max=" << max_bits << "  avg=" << avg_bits << "\n";
     rep << "hex%   min=" << min_hex
@@ -411,13 +494,13 @@ static bool test_7_hiding() {
 
 static void print_menu() {
     cout <<
-        "\nPasirink testą:\n"
+        "\nPasirink testą (optimizuota 24 threads):\n"
         "0 - visi testai\n"
         "1 - išvedimo dydis\n"
         "2 - deterministiškumas\n"
         "4 - efektyvumas\n"
-        "5 - kolizijų paieška\n"
-        "6 - lavinos efektas\n"
+        "5 - kolizijų paieška (paralelizuota)\n"
+        "6 - lavinos efektas (paralelizuota)\n"
         "7 - negrįžtamumo demonstracija\n"
         "q - grįžti\n> ";
 }
@@ -434,6 +517,9 @@ struct SessionGuard {
 };
 
 bool run_tests_menu() {
+    // Set optimal thread count for maximum performance
+    set_optimal_threads();
+    
     ensure_dir("files");
     ensure_analysis_dir();
 

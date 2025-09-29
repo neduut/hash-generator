@@ -95,8 +95,8 @@ string generate_hashe(const string& user_input) {
     // viskas vyksta 8 ROUNDUS
     constexpr int ROUNDS = 4;
 
-    // 8) pradinis seed (kad net trumpas ivedimas duotu 64 simboliu hash)
-    string seed = "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6"; // 32 simboliai
+    // 8) pagerintas pradinis seed - netaisyklingas pattern geresnei difuzijai
+    string seed = "Kx9mN3vL8qR5wY1pZ7jT2bF6hC4nA0sD"; // 32 simboliai, mixed pattern
 
     // "state" – einamojo raundo įėjimas; pradedam nuo ASCII
     vector<int> state = ascii_vals;
@@ -143,11 +143,31 @@ string generate_hashe(const string& user_input) {
             blocks_flat.push_back(0);
         }
 
-        // 9) kiekviena masyvo elementa imaisau i seed simboli
+        // 9) pagerinti maisyma su seed - difuzijos mechanizmas
         for (size_t i = 0; i < blocks_flat.size(); ++i) {
-            size_t si = i % seed.size(); // seed indeksa sukame ratu
-            int sum = (int)(unsigned char)seed[si] + blocks_flat[i]; // seed ascii + masyvo elementas
-            seed[si] = to_base62(sum % 62); // mod 62 -> base62 simbolis
+            for (size_t j = 0; j < seed.size(); ++j) {
+                // Sudėtingesnis maišymas su kryžminio poveikio difuzija
+                size_t si = (i + j * 7 + blocks_flat[i]) % seed.size();
+                
+                // Kelių operacijų kombinacija didesniam chaos
+                int seed_val = (int)(unsigned char)seed[si];
+                int data_val = blocks_flat[i];
+                int position_factor = (int)(i * 17 + j * 23); // pozicijos įtaka
+                
+                // XOR, shift ir suma kombinacija geresnei difuzijai
+                int mixed = (seed_val ^ data_val) + position_factor;
+                mixed = (mixed << 3) ^ (mixed >> 2); // bit shifting
+                mixed ^= (data_val * 31); // papildomas XOR su prime multiplier
+                
+                seed[si] = to_base62(mixed % 62);
+                
+                // Cross-diffusion: kiti seed elementai irgi paveikiami
+                if (j > 0) {
+                    size_t prev_si = (si + seed.size() - 1) % seed.size();
+                    int cross_mix = ((int)(unsigned char)seed[prev_si] + mixed) ^ (i + j);
+                    seed[prev_si] = to_base62(cross_mix % 62);
+                }
+            }
         }
 
         // kitas raundas naudos dabartini masyva

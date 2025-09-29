@@ -26,7 +26,7 @@ static string readinput() {
             if (!getline(cin, file_choice_s)) throw runtime_error(INVALID_CHOICE);
             file_choice_s.erase(remove(file_choice_s.begin(), file_choice_s.end(), ' '), file_choice_s.end());
 
-            if      (file_choice_s == "1") file_choice_s = "a.txt";
+            if (file_choice_s == "1") file_choice_s = "a.txt";
             else if (file_choice_s == "2") file_choice_s = "b.txt";
             else if (file_choice_s == "3") file_choice_s = "empty.txt";
             else if (file_choice_s == "4") file_choice_s = "random_2000_A.txt";

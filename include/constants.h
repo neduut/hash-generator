@@ -14,7 +14,7 @@ inline const std::string ENTER_INPUT_TYPE =
     "2 - Iš failo\n";
 
 inline const std::string GENERATE_HASH_PROMPT =
-    "\nGeneruoti dar vieną hash (1) ar užbaigti programą (0)? ";
+    "\nGeneruoti dar vieną hash (1) ar grįžti (0)? ";
 
 inline const std::string ENTER_DATA =
     "\nĮveskite duomenis:\n";
