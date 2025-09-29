@@ -11,7 +11,17 @@
 * [Apie projektą](#apie-projektą)
 * [Meniu](#meniu)
 * [Vartotojo įvestis](#vartotojo-įvestis)
-* [Projekto struktūra](#projekto-struktūra)
+* [Projekto struktūra](#projekt**Rezultatas:** ✅ Demonstracija sėkminga:
+
+```
+salt="salt1" -> xa4tvU8GKn2zbxEQu4MbjuxW0C8unCI6EJ3y9OWlRq28Ma12fJPS1gVAPddksFF2
+salt="salt2" -> uyx0Ge0Qpiiz9xljEdwwpQEcc4k2RLERB7w5k8Ovwli8KaIvpSzd7C2Q1FpSWOBN
+salt="ilgesnis_saltas_123" -> txi37ygQYuDE74cNuo5wXcNFeompkaKZcjo1Gd4veoiyIHzZUo8dFYbj3ZrfpdHL
+salt="!" -> 4i10egbclKQEDAbymrrf2hf3ZZVcxwEDkcYXPTX96pWClmZdb2rO7kCfpnYTRq2h
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> pvOHplyDqYoW6hNLITRGh11LTEVRXKcTFpLE0YkAbDuUO3BqxuRfm4oXj2YyhEAx
+```
+
+**Komentaras:** Tie patys saltai duoda identiškus hash'us, skirtingi saltai - visiškai skirtingus rezultatus. Negrįžtamumas užtikrintas.truktūra)
 * [Hash’o generavimo eiga](#hasho-generavimo-eiga-v01)
 * [Versija v0.11](#versija-v0.11)
 * [Eksperimentinis tyrimas (testai)](#eksperimentinis-tyrimas-testai)
@@ -155,7 +165,7 @@ Atlikti laiko matavimo testai, pilni rezultatai faile: `analysis`/`OPENMP_ANALYS
 
 Testuose matyti, jog algoritmas su pritaikytu OpenMP veikia daug lėčiau, nesvarbu ar naudojant porą thread ar 24, ar mažesnį failą ar didesnį. 
 
-**IŠVADA:** OpenMP NETINKA šiam algoritmui
+IŠVADA: OpenMP NETINKA šiam algoritmui
 
 ### 3 užduotis: patikrinti optimizavimo vėliavėles
 
@@ -168,7 +178,7 @@ Atlikti laiko matavimo testai, pilni rezultatai faile: `analysis`/`OPTIMIZATION_
 | **-O3** | 6.7x     | 7.2x      | 8.2x      | 8.1x       | **7.5x** |
 | **-Ofast** | 5.1x  | 8.4x      | 4.3x      | 5.1x       | **5.7x** |
 
-**IŠVADA:** pakeičiau iš -O2 į -03
+IŠVADA: pakeičiau iš -O2 į -03
 
 ### 4 užduotis: pagerinti seed maišymą
 
@@ -185,7 +195,7 @@ Pakeičiau kaip algoritmas maišo duomenis su seed, kad hash'ai būtų saugesni.
 * Dabar 39% bitų pasikeičia (buvo tik 1.5%)
 * 94% simbolių pasikeičia
 
-**IŠVADA:** hash'ai dabar daug geriau reaguoja į mažus pokyčius 
+IŠVADA: hash'ai dabar daug geriau reaguoja į mažus pokyčius 
 
 ### 5 užduotis: OpenMP į testus
 
@@ -201,11 +211,11 @@ Threads | Laikas    | Speedup | Efektyvumas
 18      | 43.7s     | 11.6x   | 65%
 24      | 38.4s     | 13.2x   | 55%
 
-**IŠVADA:** nusprendžiau implementuoti 24 threads paraleliniam skaičiavimui.
+IŠVADA: nusprendžiau implementuoti 24 threads paraleliniam skaičiavimui.
 
 ---
 
-## Eksperimentinis tyrimas 
+## Eksperimentinis tyrimas (testai)
 
 Visi rezultatai rašomi į **`analysis/`** katalogą.
 
@@ -224,31 +234,31 @@ q - grįžti
 
 ### 1) Išvedimo dydis (64 simboliai)
 
-**Principas:** nepriklausomai nuo įvesties ilgio ar turinio, hash’as visada turi būti fiksuoto dydžio – 64 simboliai.
+**Principas:** Nepriklausomai nuo įvesties ilgio ar turinio, hash’as visada turi būti fiksuoto dydžio – 64 simboliai.
 
-**Eiga:** generuojami hash’ai iš įvairių įvesčių: tuščios eilutės, vieno simbolio („a“, „b“), ilgesnių ir atsitiktinių failų.
+**Eiga:** Generuojami hash’ai iš įvairių įvesčių: tuščios eilutės, vieno simbolio („a“, „b“), ilgesnių ir atsitiktinių failų.
 
-**Rezultatas:** visur gauta 64 simbolių eilutė.
+**Rezultatas:** ✅ Visur gauta 64 simbolių eilutė.
 
 ---
 
 ### 2) Deterministiškumas
 
-**Principas:** jei įvedama ta pati eilutė, hash’as turi būti identiškas kiekvieną kartą.
+**Principas:** Jei įvedama ta pati eilutė, hash’as turi būti identiškas kiekvieną kartą.
 
-**Eiga:** kartojami bandymai su tomis pačiomis įvestimis (pvz., „a.txt“, „b.txt“, `random_2000_A.txt`).
+**Eiga:** Kartojami bandymai su tomis pačiomis įvestimis (pvz., „a.txt“, „b.txt“, `random_2000_A.txt`).
 
-**Rezultatas:** hash’ai identiški visais pakartotiniais paleidimais.
+**Rezultatas:** ✅ Hash’ai identiški visais pakartotiniais paleidimais.
 
 ---
 
 ### 4) Efektyvumas
 
-**Principas:** matuoti, kaip algoritmas skaluojasi didėjant įvesties dydžiui.
+**Principas:** Matuoti, kaip algoritmas skaluojasi didėjant įvesties dydžiui.
 
-**Eiga:** pasirenkamas didelis failas (`konstitucija.txt`), skaičiuojama su 1, 2, 4, 8, ... eilutėmis. Testas kartojamas kelis kartus, fiksuojamas vidutinis laikas.
+**Eiga:** Pasirenkamas didelis failas (`konstitucija.txt`), skaičiuojama su 1, 2, 4, 8, ... eilutėmis. Testas kartojamas kelis kartus, fiksuojamas vidutinis laikas.
 
-**Rezultatas:** laikai įrašomi į `analysis/perf.csv`:
+**Rezultatas:** Laikai įrašomi į `analysis/perf.csv`:
 
 | Eilutės | Vidutinis laikas (ms) |
 |--------:|----------------------:|
@@ -263,15 +273,15 @@ q - grįžti
 |     256 |                 33.60 |
 |     512 |                 81.20 |
 
-**Komentaras:** hash generavimas rodo beveik linijinį augimą. Su optimizuotomis compiler flags (-O3) ir 24 threads paralelizacija testams algoritmas veikia efektyviai.
+**Komentaras:** Hash generavimas rodo beveik linijinį augimą. Su optimizuotomis compiler flags (-O3) ir 24 threads paralelizacija testams algoritmas veikia efektyviai.
 
 ---
 
 ### 5) Kolizijų paieška
 
-**Principas:** tikrinama, ar dvi skirtingos įvestys gali duoti identišką hash’ą.
+**Principas:** Tikrinama, ar dvi skirtingos įvestys gali duoti identišką hash’ą.
 
-**Eiga:** generuojama po 100 000 porų įvairaus ilgio (10, 100, 500, 1000 simbolių) ir lyginami hash’ai.
+**Eiga:** Generuojama po 100 000 porų įvairaus ilgio (10, 100, 500, 1000 simbolių) ir lyginami hash’ai.
 
 **Rezultatai (su 24 threads paralelizacija):**
 
@@ -284,15 +294,15 @@ q - grįžti
 
 **Bendras testas užtruko:** 39.8s (su 24 threads) vs ~507s (su 1 thread) = **13.2x greičiau**
 
-**Komentaras:** kolizijų nepastebėta, bet tai nereiškia, kad jų nėra. OpenMP paralelizacija dramatiškai pagreitino testų vykdymą.
+**Komentaras:** Kolizijų nepastebėta, bet tai nereiškia, kad jų nėra. OpenMP paralelizacija dramatiškai pagreitino testų vykdymą.
 
 ---
 
 ### 6) Lavinos efektas
 
-**Principas:** mažas pokytis įvestyje turi sukelti didelį pokytį išvestyje (~50% bitų turėtų pasikeisti).
+**Principas:** Mažas pokytis įvestyje turi sukelti didelį pokytį išvestyje (~50% bitų turėtų pasikeisti).
 
-**Eiga:** testuojamos poros, kurios skiriasi tik vienu simboliu. Skaičiuojama, kiek procentų bitų pasikeičia.
+**Eiga:** Testuojamos poros, kurios skiriasi tik vienu simboliu. Skaičiuojama, kiek procentų bitų pasikeičia.
 
 **Rezultatai (su pagerintais seed maišymu ir 24 threads):**
 
@@ -301,19 +311,19 @@ q - grįžti
 * **Greitis:** 41,710 hash/s su paralelizacija
 * **Testas užtruko:** 4.8s (duomenų generavimas + skaičiavimai)
 
-**Komentaras:** Po seed maišymo pagerinimų lavinos efektas pagerėjo. Nuo ~1.5% iki **46.9%** bitų - tai jau artima idealiam 50% rezultatui. 
+**Komentaras:** Po seed maišymo pagerinimų lavinos efektas dramatiškai pagerėjo! Nuo ~1.5% iki **46.9%** bitų - tai jau artima idealiam 50% rezultatui. OpenMP paralelizacija taip pat dramatiškai pagreitino testą.
 
 ---
 
 ### 7) Negrįžtamumo demonstracija 
 
-**Principas:** panaudojus papildomą „druską“ (salt), hash’ai turi keistis akivaizdžiai. Tas pats salt turi duoti tą patį hash, o skirtingi – skirtingus.
+**Principas:** Panaudojus papildomą „druską“ (salt), hash’ai turi keistis akivaizdžiai. Tas pats salt turi duoti tą patį hash, o skirtingi – skirtingus.
 
-**Eiga:** palyginami hash’ai, sugeneruoti su įvairiais saltais (`salt1`, `salt2`, `!`, ilgesnis string’as).
+**Eiga:** Palyginami hash’ai, sugeneruoti su įvairiais saltais (`salt1`, `salt2`, `!`, ilgesnis string’as).
 
-**Rezultatas:** tie patys saltai → tie patys hash’ai. Skirtingi saltai → visiškai kitokie hash’ai.
+**Rezultatas:** ✅ Tie patys saltai → tie patys hash’ai. Skirtingi saltai → visiškai kitokie hash’ai.
 
-**Komentaras:** demonstracija sėkminga, bet lavinos efektas dar kolkas galėtų būt geresnis.
+**Komentaras:** Demonstracija sėkminga, bet lavinos efektas per silpnas.
 
 ---
 
@@ -321,7 +331,7 @@ q - grįžti
 
 * ✅ **Ilgis** – visada 64 simboliai
 * ✅ **Deterministiškumas** – užtikrintas visais atvejais
-* ⚠️ **Lavinos efektas** – 46.9% bitų pokytis, šiaip jau visai nieko
+* ✅ **Lavinos efektas** – 46.9% bitų pokytis
 * ✅ **Kolizijos** – kolkas 0 kolizijų
 * ✅ **Efektyvumas** – linijinis augimas, optimizuotas su -O3
 * ✅ **Negrįžtamumas** – sėkmingai demonstruotas su salt'ais
@@ -339,10 +349,7 @@ q - grįžti
 ## Tolimesni darbai 
 
 * **Pritaikyt OpenMP/OpenCL pagrindiniam algoritmui** - netinka dėl overhead
-* **Dar pagerint lavinos efektą** - jei sugalvosiu kažką protingo
-* **Palyginimas su egzistuojančiais hash generatoriais** - BONUS
 * **AI siūlomi patobulinimai** - bet tik versijoj v0.2
-
 
 ---
 
