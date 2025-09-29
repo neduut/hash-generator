@@ -155,7 +155,7 @@ Atlikti laiko matavimo testai, pilni rezultatai faile: `analysis`/`OPENMP_ANALYS
 
 Testuose matyti, jog algoritmas su pritaikytu OpenMP veikia daug lėčiau, nesvarbu ar naudojant porą thread ar 24, ar mažesnį failą ar didesnį. 
 
-**IŠVADA:** OpenMP NETINKA šiam algoritmui
+**IŠVADA:** OpenMP netinka mano algoritmui (gal pakoreguot algoritmą?)
 
 ### 3 užduotis: patikrinti optimizavimo vėliavėles
 
