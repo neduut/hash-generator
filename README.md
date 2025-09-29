@@ -223,6 +223,7 @@ q - grįžti
 
 * [ ] Įdiegti daugiau raundų
 * [ ] Pritaikyt OpenMP/OpenCL
+* [ ] Patikrint optimizavimo vėliavėles
 * [ ] Naudoti daugiau rotacijų
 * [ ] Pagerinti maišymą su seed
 * [ ] Negrįžtamumo demonstracija?
