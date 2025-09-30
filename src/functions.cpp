@@ -24,7 +24,7 @@ namespace {
 
     // padalina i blokus po 4 elementus
     // jei paskutinis blokas trumpesnis – pildom modulo 64 ziurint nuo pradzios
-    // (t.y. trukstamus elementus ima is pradinio masyvo su indeksu % min(64, n))
+    // trukstamus elementus ima is pradinio masyvo su indeksu % min(64, n)
     vector<int> split_into_blocks_pad4(const vector<int>& nums) {
         vector<int> out;
         out.reserve(((nums.size() + 3) / 4) * 4);
@@ -45,28 +45,36 @@ namespace {
         return out;
     }
 
-    // pritaiko permutacijos formule kas antram blokui (zingsnis 4)
-    void permute_every_second_block(vector<int>& flat_blocks) {
-        for (size_t b = 0; b * 4 < flat_blocks.size(); ++b) {
-            const bool is_second = ((b + 1) % 2 == 0); 
-            if (!is_second) continue;
-            int temp[4];
-            // out[new_index] = in[index], kur new_index = (index*3 + 1) % 4
-            for (int index = 0; index < 4; ++index) {
-                int new_index = (index * 3 + 1) % 4;
-                temp[new_index] = flat_blocks[b * 4 + index];
+    // elementai maisomi priklausomai nuo ju vertes
+    void value_dependent_shuffle(vector<int>& flat_blocks) {
+        if (flat_blocks.empty()) return;
+        
+        vector<int> temp = flat_blocks; // kopija
+        const size_t n = flat_blocks.size();
+        
+        for (size_t i = 0; i < n; ++i) {
+            int value = temp[i];
+            size_t new_pos;
+            
+            if (value % 2 == 0) {  // lyginis - keliauja i prieki
+                size_t jump = (17 * abs(value) * 7 + i * 23) % n; // pozicijos itaka
+                new_pos = (i + jump) % n;
+            } else {  // nelyginis - keliauja atgal
+                size_t jump = (13 * abs(value) * 11 + i * 19) % n;  // pozicijos itaka
+                new_pos = (i + n - (jump % n)) % n;  // apsauga nuo underflow
             }
-            for (int i = 0; i < 4; ++i) flat_blocks[b*4 + i] = temp[i];
+            
+            flat_blocks[new_pos] = value;
         }
     }
 
-    // apvercia visa masyva (zingsnis 6)
+    // apvercia visa masyva 
     template <class T>
     void reverse_all(vector<T>& v) {
         std::reverse(v.begin(), v.end());
     }
 
-    // padalina per puse ir sukeicia vietomis (zingsnis 7)
+    // padalina per puse ir sukeicia vietomis
     template <class T>
     void swap_halves(vector<T>& v) {
         size_t n = v.size();
@@ -79,6 +87,24 @@ namespace {
         v.insert(v.end(), first.begin(), first.end());
     }
 
+    // ASCII masymas - kiekvienas elementas paveiks 3 kitus 
+    void ascii_mixer(vector<int>& blocks) {
+        if (blocks.empty()) return;
+        vector<int> temp = blocks; // kopija, kad nepaveiktu vienas kito
+        
+        for (size_t i = 0; i < temp.size(); ++i) {
+            int val = temp[i];
+            
+            size_t target1 = (i + abs(val)) % blocks.size();
+            size_t target2 = (i + abs(val) * 2) % blocks.size();
+            size_t target3 = (i + abs(val) * 3) % blocks.size();
+            
+            blocks[target1] = (blocks[target1] + val) % 256;
+            blocks[target2] = (blocks[target2] + val * 2) % 256;
+            blocks[target3] = (blocks[target3] + val * 3) % 256;
+        }
+    }
+
 } // namespace
 
 string generate_hashe(const string& user_input) {
@@ -87,28 +113,25 @@ string generate_hashe(const string& user_input) {
     ascii_vals.reserve(user_input.size());
     for (unsigned char c : user_input) ascii_vals.push_back((int)c);
 
-    // leidziu tuscia ivesti
+    // jiei ivestis tuscia vistiek generuoju hash viska uzpildant nuliais
     if (ascii_vals.empty()) {
         ascii_vals.push_back(0);
     }
 
-    // viskas vyksta 8 ROUNDUS
+    // 2) ivairiausi maisyma hash generavimo vyksta 4 roundai
     constexpr int ROUNDS = 4;
 
-    // 8) pagerintas pradinis seed - netaisyklingas pattern geresnei difuzijai
-    string seed = "Kx9mN3vL8qR5wY1pZ7jT2bF6hC4nA0sD"; // 32 simboliai, mixed pattern
-
-    // "state" – einamojo raundo įėjimas; pradedam nuo ASCII
+    // dabartinio roundo duomenys
     vector<int> state = ascii_vals;
 
-    // paskutinio raundo blocks_flat saugosim čia – bus reikalingas finalui
+    // paskutinio raundo duomenu kopija
     vector<int> blocks_flat;
 
     for (int r = 0; r < ROUNDS; ++r) {
-        // 2) padalinu skaicius i blokus po 4 su pildymu modulo 64 nuo pradzios
+        // a) padalinu skaicius i blokus po 4 su pildymu modulo 64 nuo pradzios
         blocks_flat = split_into_blocks_pad4(state);
 
-        // 3) apverciu bloku eile (po 4 elementus) – bloku lygmeniu
+        // b) apverciu bloku eile (po 4 elementus)
         vector<std::array<int,4>> blocks;
         blocks.reserve(blocks_flat.size() / 4);
         for (size_t i = 0; i < blocks_flat.size(); i += 4) {
@@ -120,61 +143,45 @@ string generate_hashe(const string& user_input) {
 
         blocks_flat.clear();
         blocks_flat.reserve(blocks.size() * 4);
-        for (auto &b : blocks) { // 5) vel sujungiu i viena masyva
+        for (auto &b : blocks) { // d) vel sujungiu i viena masyva
             blocks_flat.push_back(b[0]);
             blocks_flat.push_back(b[1]);
             blocks_flat.push_back(b[2]);
             blocks_flat.push_back(b[3]);
         }
 
-        // 4) kiekvieno antro bloko elementus sukeiciu pagal formule
-        permute_every_second_block(blocks_flat);
+        // c) maisymas priklausomai nuo elemento reiksmes
+        value_dependent_shuffle(blocks_flat);
 
-        // 5) visi blokai sujungti i viena masyva (blocks_flat) jau padaryta anksciau
-
-        // 6) apverciu visa masyva
+        // e) apverciu visa masyva
         reverse_all(blocks_flat);
 
-        // 7) padalinu masyva per puse ir sukeiciu dalis vietomis
+        // f) padalinu masyva per puse ir sukeiciu dalis vietomis
         swap_halves(blocks_flat);
 
-        // jei tuscias (pvz. ivesta tuscia eilute), tai kad nebutu problemu
+        // g) ASCII maisyma kur vienas elementas paveikia kitus 3
+        ascii_mixer(blocks_flat);
+
+        // jei tuscia ivestis
         if (blocks_flat.empty()) {
             blocks_flat.push_back(0);
-        }
-
-        // 9) pagerinti maisyma su seed - difuzijos mechanizmas
-        for (size_t i = 0; i < blocks_flat.size(); ++i) {
-            for (size_t j = 0; j < seed.size(); ++j) {
-                // Sudėtingesnis maišymas su kryžminio poveikio difuzija
-                size_t si = (i + j * 7 + blocks_flat[i]) % seed.size();
-                
-                // Kelių operacijų kombinacija didesniam chaos
-                int seed_val = (int)(unsigned char)seed[si];
-                int data_val = blocks_flat[i];
-                int position_factor = (int)(i * 17 + j * 23); // pozicijos įtaka
-                
-                // XOR, shift ir suma kombinacija geresnei difuzijai
-                int mixed = (seed_val ^ data_val) + position_factor;
-                mixed = (mixed << 3) ^ (mixed >> 2); // bit shifting
-                mixed ^= (data_val * 31); // papildomas XOR su prime multiplier
-                
-                seed[si] = to_base62(mixed % 62);
-                
-                // Cross-diffusion: kiti seed elementai irgi paveikiami
-                if (j > 0) {
-                    size_t prev_si = (si + seed.size() - 1) % seed.size();
-                    int cross_mix = ((int)(unsigned char)seed[prev_si] + mixed) ^ (i + j);
-                    seed[prev_si] = to_base62(cross_mix % 62);
-                }
-            }
         }
 
         // kitas raundas naudos dabartini masyva
         state = blocks_flat;
     }
 
-    // 10–11) sukuriu galutini hash – 64 base62 simboliai (naudojam paskutinio raundo blocks_flat)
+    // 3) seed su kuriuo maisysiu
+    string seed = "Kx9mN3vL8qR5wY1pZ7jT2bF6hC4nA0sD"; // 32 simboliai
+
+    // 4) maisymas su seed
+    for (size_t i = 0; i < blocks_flat.size(); ++i) {
+        size_t si = i % seed.size(); // seed indeksa sukame ratu
+        int sum = (int)(unsigned char)seed[si] + blocks_flat[i]; // seed ascii + masyvo elementas
+        seed[si] = to_base62(sum % 62); // mod 62 kad griztu i base62 simboli
+    }    
+
+    // 5-6) sukuriu galutini hash – 64 base62 simboliai
     string out;
     out.reserve(64);
     for (int i = 0; i < 64; ++i) {
@@ -184,5 +191,5 @@ string generate_hashe(const string& user_input) {
         out.push_back(to_base62(v));
     }
 
-    return out; // 64 base62 simboliai
+    return out;
 }

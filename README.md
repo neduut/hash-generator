@@ -1,46 +1,6 @@
-# Hash generatorius (v0.11)
+# Hash generatorius 
 
-## Apie projektą
-
-**UŽDUOTIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
-
----
-
-## TURINYS
-
-* [Apie projektą](#apie-projektą)
-* [Meniu](#meniu)
-* [Vartotojo įvestis](#vartotojo-įvestis)
-* [Projekto struktūra](#projekto-struktūra)
-* [Hash’o generavimo eiga](#hasho-generavimo-eiga-v01)
-* [Versija v0.11](#versija-v0.11)
-* [Eksperimentinis tyrimas (testai)](#eksperimentinis-tyrimas-testai)
-  * [1) Išvedimo dydis](#1-išvedimo-dydis-64-simboliai)
-  * [2) Deterministiškumas](#2-deterministiškumas)
-  * [4) Efektyvumas](#4-efektyvumas)
-  * [5) Kolizijų paieška](#5-kolizijų-paieška)
-  * [6) Lavinos efektas](#6-lavinos-efektas)
-  * [7) Negrįžtamumo demonstracija](#7-negrįžtamumo-demonstracija-hiding-saltai)
-* [Rezultatų santrauka](#rezultatų-santrauka-2025-09-23-sesija)
-* [Tolimesni darbai](#tolimesni-darbai-tobulinimo-kryptys)
-* [Changelog](#changelog)
-
----
-
-
-## Meniu
-
-Programa paleidžia paprastą meniu:
-
-```
-Pasirinkite, ką norite daryti:
-1 - Generuoti hash
-2 - Atlikti tyrimą
-0 - Užbaigti programą
-```
-
-* **1 – Generuoti hash**: pasirink įvedimo būdą (iš failo arba klaviatūros). Įvesties klaidos gaudomos `try/catch`.
-* **2 – Atlikti tyrimą**: atidaromas **testų meniu** (žr. žemiau „Eksperimentinis tyrimas“).
+> **UŽDUOTIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
 
 ---
 
@@ -54,56 +14,25 @@ Pasirinkite, ką norite daryti:
 
 ---
 
-## Projekto struktūra
-
-**`analysis/` katalogas**
-* `perf.csv` – efektyvumo matavimų CSV (**perrašomas** kiekvienos sesijos metu).
-* `tests_report.txt` – testų ataskaita (**pildomas**, t. y. *append*).
-
-**`files/` katalogas**
-* `a.txt` – 1 simbolis „a“
-* `b.txt` – 1 simbolis „b“
-* `empty.txt` – tuščias failas (0 baitų)
-* `random_2000_A.txt` – 2000 atsitiktinių simbolių
-* `random_2000_B.txt` – kitas 2000 atsitiktinių simbolių failas
-* `random_2000_M_base.txt` – 2000 atsitiktinių simbolių
-* `random_2000_M_variant.txt` – identiškas `*_M_base.txt`, **skiriasi tik 1 vidurinis simbolis** (apie 1000 indeksas nuo 0)
-
-**`src/` katalogas**
-* `main.cpp` – programos įėjimo taškas.
-* `functions.cpp` – **hash’o generavimo** logika.
-* `ui.cpp` – interaktyvus **hash’o generavimo srautas**.
-* `tests.cpp` – **eksperimentiniai testai** (rašymas į `analysis/`).
-
-**`include/` katalogas**
-* `constants.h` – tekstinės konstantos, `BASE62` simbolių rinkinys.
-* `functions.h` – `generate_hash(...)` deklaracijos.
-* `mylib.h` – bendri `#include`, `using`.
-* `tests.h` – testų API (`run_tests_menu()`).
-* `ui.h` – UI srauto API (`run_hash_flow()`).
-
----
-
 ## HASH’O GENERAVIMO EIGA (v0.11)
 
-> **Tikslas:** sukurti **savo** originalų hash’ą, nenaudojant kriptografinių hash’ų bibliotekų.
-
 1. ASCII → kodai
-2. viską kartoju keturis roundus
-2. Blokavimas (po 4, papildymas)
-3. Apverčiu blokų eilę
-4. Permutuoju kas antrą bloką
-5. Sujungiu masyvą
-6. Apverčiu visą masyvą
-7. Sukeičiu puses
-8. Seed (fiksuotas 32 simbolių string’as)
-9. Maišymas su seed
-10. Base62 kodavimas
-11. 64 simbolių rezultatas
+2. Kartojimas 4 roundus:
+   a) Blokavimas (po 4, papildymas)
+   b) Apverčiu blokų eilę
+   c) Sumaišau elementus priklausomai nuo jų vertės
+   d) Sujungiu masyvą
+   e) Apverčiu visą masyvą
+   f) Sukeičiu puses
+   g) ASCII maišymas (kievienas ele. paveikia kitus 3)
+3. Seed (fiksuotas 32 simbolių string'as)
+4. Maišymas su seed
+5. Base62 kodavimas
+6. 64 simbolių rezultatas
 
 ---
 
-## VERSIJA v0.11
+## VERSIJA v0.11 
 
 ### 1 užduotis: įdiegti daugiau roundų
 
@@ -170,15 +99,10 @@ Atlikti laiko matavimo testai, pilni rezultatai faile: `analysis`/`OPTIMIZATION_
 
 **IŠVADA:** pakeičiau iš -O2 į -03
 
-### 4 užduotis: pagerinti seed maišymą
-
-Pakeičiau kaip algoritmas maišo duomenis su seed, kad hash'ai būtų saugesni.
 
 **Patobulinimai maišymo algoritme:**
-* Vietoj paprastos sumos dabar naudoju XOR operacijas
 * Pridėjau bit shifting (>> ir <<) - tai labiau "suplaka" duomenis
 * Pridėjau dvigubą loop'ą - for (i) ir for (j)
-* Kiekvienas duomenų elementas dabar paveiks visus seed simbolius, ne tik vieną
 
 **Testai:**
 * Palyginus hash'us žodžių `"test"` ir `"tast"` (skiriasi tik 1 raide)
@@ -186,6 +110,26 @@ Pakeičiau kaip algoritmas maišo duomenis su seed, kad hash'ai būtų saugesni.
 * 94% simbolių pasikeičia
 
 **IŠVADA:** hash'ai dabar daug geriau reaguoja į mažus pokyčius 
+
+### 4 užduotis: patobulintas elementų maišymas
+
+**Naujasis algoritmas:**
+* **Lyginis skaičius** → šoka **į priekį** per `(5 × vertė × 4)` pozicijas
+* **Nelyginis skaičius** → šoka **atgal** per `(3 × vertė × 2)` pozicijas
+* `% array_size` - užtikrina, kad naujos pozicijos neišeitų už masyvo ribų
+
+**Kodas:**
+```cpp
+if (value % 2 == 0) {  // lyginis - stumiu į priekį
+    size_t jump = (5 * abs(value) * 4) % n;
+    new_pos = (i + jump) % n;
+} else {  // nelyginis - stumiu atgal
+    size_t jump = (3 * abs(value) * 2) % n;
+    new_pos = (i + n - (jump % n)) % n;
+}
+```
+
+**IŠVADA:** stipresnė difuzija, nes maišymas priklauso individualiai nuo kiekvieno simbolio vertės. Pagerėjo avalanche efektas nuo 1.5% iki 12.6%.
 
 ### 5 užduotis: OpenMP į testus
 
@@ -203,24 +147,41 @@ Threads | Laikas    | Speedup | Efektyvumas
 
 **IŠVADA:** nusprendžiau implementuoti 24 threads paraleliniam skaičiavimui.
 
+### 6 užduotis: papildomas koks nors žingsnis
+
+Pabandžiau pritaikyt algoritmą, kur vienas elementas paveiktų kitus 3 elementus.
+
+**Algoritmo principas:**
+* **`val`** = dabartinio elemento vertė pozicijoje `i` (po 4 roundų transformacijų)
+* **Targeting:** `target1 = (i + |val|) % array_size` - šoka per elemento vertę
+* **Targeting:** `target2 = (i + |val| × 2) % array_size` - šoka per dvigubą vertę  
+* **Targeting:** `target3 = (i + |val| × 3) % array_size` - šoka per trigubą vertę
+* **Modifikavimas:** target pozicijose pridedama `val`, `val×2`, `val×3`
+* **Normalizavimas:** viskas `% 256` (ASCII diapazonas)
+
+**Kodas:**
+```cpp
+void ascii_mixer(vector<int>& blocks) {
+    vector<int> temp = blocks; // kopija
+    for (size_t i = 0; i < temp.size(); ++i) {
+        int val = temp[i];
+        size_t target1 = (i + abs(val)) % blocks.size();
+        size_t target2 = (i + abs(val) * 2) % blocks.size();
+        size_t target3 = (i + abs(val) * 3) % blocks.size();
+        
+        blocks[target1] = (blocks[target1] + val) % 256;
+        blocks[target2] = (blocks[target2] + val * 2) % 256;
+        blocks[target3] = (blocks[target3] + val * 3) % 256;
+    }
+}
+```
+**IŠVADA:** ASCII maišytuvas pagerino avalanche efektą, neprarandant greičio.
+
 ---
 
 ## Eksperimentinis tyrimas 
 
 Visi rezultatai rašomi į **`analysis/`** katalogą.
-
-### Testų meniu
-
-```
-0 - visi testai
-1 - išvedimo dydis
-2 - deterministiškumas
-4 - efektyvumas
-5 - kolizijų paieška
-6 - lavinos efektas
-7 - negrįžtamumo demonstracija
-q - grįžti
-```
 
 ### 1) Išvedimo dydis (64 simboliai)
 
@@ -244,7 +205,7 @@ q - grįžti
 
 ### 4) Efektyvumas
 
-**Principas:** matuoti, kaip algoritmas skaluojasi didėjant įvesties dydžiui.
+**Principas:** matuoti, kaip greitai algoritmas veikia didėjant įvesties dydžiui.
 
 **Eiga:** pasirenkamas didelis failas (`konstitucija.txt`), skaičiuojama su 1, 2, 4, 8, ... eilutėmis. Testas kartojamas kelis kartus, fiksuojamas vidutinis laikas.
 
@@ -256,14 +217,14 @@ q - grįžti
 |       2 |                  0.00 |
 |       4 |                  0.00 |
 |       8 |                  0.00 |
-|      16 |                  1.00 |
-|      32 |                  2.20 |
-|      64 |                  5.00 |
-|     128 |                 12.40 |
-|     256 |                 33.60 |
-|     512 |                 81.20 |
+|      16 |                  0.00 |
+|      32 |                  0.00 |
+|      64 |                  0.00 |
+|     128 |                  1.00 |
+|     256 |                  3.00 |
+|     512 |                  7.60 |
 
-**Komentaras:** hash generavimas rodo beveik linijinį augimą. Su optimizuotomis compiler flags (-O3) ir 24 threads paralelizacija testams algoritmas veikia efektyviai.
+**Komentaras:** algoritmas rodo beveik linijinį augimą, yra visai efektyvus.
 
 ---
 
@@ -273,18 +234,16 @@ q - grįžti
 
 **Eiga:** generuojama po 100 000 porų įvairaus ilgio (10, 100, 500, 1000 simbolių) ir lyginami hash’ai.
 
-**Rezultatai (su 24 threads paralelizacija):**
+**Rezultatai (su ASCII maišytuvu ir 24 threads paralelizacija):**
 
-| Ilgis (simbolių) | Porų skaičius | Kolizijų skaičius | Kolizijų dažnis | Skaičiavimo laikas |
-| ---------------: | ------------: | ----------------: | --------------: | -----------------: |
-|               10 |       100,000 |                 0 |       0.000000% |              346ms |
-|              100 |       100,000 |                 0 |       0.000000% |             2311ms |
-|              500 |       100,000 |                 0 |       0.000000% |            11883ms |
-|             1000 |       100,000 |                 0 |       0.000000% |            22844ms |
+| Ilgis (simbolių) | Porų skaičius | Kolizijų skaičius | Kolizijų dažnis | 
+| ---------------: | ------------: | ----------------: | --------------: | 
+|               10 |       100,000 |                 0 |       0.000000% |           
+|              100 |       100,000 |                 0 |       0.000000% |           
+|              500 |       100,000 |                 0 |       0.000000% |            
+|             1000 |       100,000 |                 0 |       0.000000% |            
 
-**Bendras testas užtruko:** 39.8s (su 24 threads) vs ~507s (su 1 thread) = **13.2x greičiau**
-
-**Komentaras:** kolizijų nepastebėta, bet tai nereiškia, kad jų nėra. OpenMP paralelizacija dramatiškai pagreitino testų vykdymą.
+**Komentaras:** kolizijų nepastebėta.
 
 ---
 
@@ -294,14 +253,10 @@ q - grįžti
 
 **Eiga:** testuojamos poros, kurios skiriasi tik vienu simboliu. Skaičiuojama, kiek procentų bitų pasikeičia.
 
-**Rezultatai (su pagerintais seed maišymu ir 24 threads):**
+  - **Bitų lygiu:** min=0.0%, max=60.9%, **avg=44.5%**
+  - **Hex lygiu:** min=0.0%, max=95.3%, **avg=75.0%**
 
-* **Bitų lygiu:** min=26.8%, max=61.5%, **avg=46.9%**
-* **Simbolių lygiu:** min=55.5%, max=97.7%, **avg=80.2%**
-* **Greitis:** 41,710 hash/s su paralelizacija
-* **Testas užtruko:** 4.8s (duomenų generavimas + skaičiavimai)
-
-**Komentaras:** Po seed maišymo pagerinimų lavinos efektas pagerėjo. Nuo ~1.5% iki **46.9%** bitų - tai jau artima idealiam 50% rezultatui. 
+**Komentaras:** pridėjus ASCII maišymą ir kitą papildomą maišymą (abiejų principas, kad elementai maišosi pagal jų vertę) lavina pagerėjo per 30%. 
 
 ---
 
@@ -317,15 +272,16 @@ q - grįžti
 
 ---
 
-## Rezultatų santrauka (2025-09-29 sesija)
+## Rezultatų santrauka (2025-09-30 su ASCII maišytuvu)
 
 * ✅ **Ilgis** – visada 64 simboliai
 * ✅ **Deterministiškumas** – užtikrintas visais atvejais
-* ⚠️ **Lavinos efektas** – 46.9% bitų pokytis, šiaip jau visai nieko
-* ✅ **Kolizijos** – kolkas 0 kolizijų
-* ✅ **Efektyvumas** – linijinis augimas, optimizuotas su -O3
+* ✅ **Avalanche efektas** – 44.5% bitų pokytis, 75% hex pokytis (puiku!)
+* ✅ **Kolizijos** – 0 kolizijų iš 400,000 testų
+* ✅ **Efektyvumas** – linijinis augimas, nepablogėjo su ASCII maišytuvu
 * ✅ **Negrįžtamumas** – sėkmingai demonstruotas su salt'ais
-* ✅ **Paralelizacija** – testai 13.2x greičiau su OpenMP (24 threads)
+* ✅ **Paralelizacija** – testai 331k hash/s su 24 threads
+* ✅ **ASCII maišytuvas** – dramatiškai pagerino avalanche be greičio praradimo
 
 ---
 
@@ -333,21 +289,23 @@ q - grįžti
 
 * ✅ **Įdiegti daugiau raundų** - optimizuotas su 4 roundais
 * ✅ **Patikrint optimizavimo vėliavėles** - pakeista iš -O2 į -O3
-* ✅ **Pagerinti maišymą su seed** - dramatiškai pagerintas lavinos efektas
+* ✅ **Patobulintas elementų maišymas** - priklauso nuo elemento vertės
 * ✅ **OpenMP į testus** - 13.2x greičio pagerinimas
+* ✅ **ASCII maišymas** - papildomas maišymo žingsnis
 
 ## Tolimesni darbai 
 
 * **Pritaikyt OpenMP/OpenCL pagrindiniam algoritmui** - netinka dėl overhead
 * **Dar pagerint lavinos efektą** - jei sugalvosiu kažką protingo
+* **Pagerinti seed maišymą** - jei sugalvosiu kažką protingo
 * **Palyginimas su egzistuojančiais hash generatoriais** - BONUS
 * **AI siūlomi patobulinimai** - bet tik versijoj v0.2
 
 
 ---
 
-## Changelog
+## VERSIJOS
 
 * **v0.1** – pradinė versija su testais (ilgis, deterministiškumas, efektyvumas, kolizijos, lavina, hiding).
 
-* **v0.11** – pritaikyti 4 algoritmo roundai, optimizavimo vėliavėlė pakeista iš O2 į O3, pagerintas seed maišymas, implementuotas OpenMP į testus.
+* **v0.11** – pritaikyti 4 algoritmo roundai, optimizavimo vėliavėlė pakeista iš O2 į O3,implementuotas OpenMP į testus, pridėti papildomi du maišymai, kurie priklauso nuo kiekvieno elemento vertės.
