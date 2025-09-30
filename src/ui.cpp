@@ -1,6 +1,6 @@
 #include "ui.h"
 #include "constants.h"
-#include "hash.h"
+#include "ownHash.h"
 
 using namespace std;
 

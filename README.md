@@ -24,12 +24,9 @@
 1. ASCII → kodai
 2. Kartojimas 4 roundus:
    a) Blokavimas (po 4, papildymas)
-   b) Apverčiu blokų eilę
-   c) Sumaišau elementus priklausomai nuo jų vertės
-   d) Sujungiu masyvą
-   e) Apverčiu visą masyvą
-   f) Sukeičiu puses
-   g) ASCII maišymas (kievienas el. paveikia kitus 3)
+   b) Sumaišau elementus priklausomai nuo jų vertės
+   c) Daugyba su 3x3 matrica
+   d) ASCII maišymas (kievienas el. paveikia kitus 3)
 3. Seed (fiksuotas 32 simbolių string'as)
 4. Maišymas su seed
 5. Base62 kodavimas
@@ -85,6 +82,76 @@ e) apverciu visa masyva
 
 Palyginau su MD5
 
+
+### 4 užduotis: įdėti kažką gal su matrica - 
+
+Įdėjau daugyba su 4x4 matrica kaip papildomą žingsnį kur vyksta 4 roundai.
+Gal reiktų įdėt OpenMP į tai? Reik pabandyt.
+
+```cpp
+int matrix[4][4] = {
+    {7, 13, 5, 11},
+    {9, 3, 17, 6},
+    {4, 15, 8, 12},
+    {14, 2, 10, 16}
+};
+```
+
+**Algoritmas:**
+1. Imami 4 elementus iš masyvo 
+2. Atliekama matricos daugyba:
+   - naujas[0] = (7*a + 13*b + 5*c + 11*d) % 256
+   - naujas[1] = (9*a + 3*b + 17*c + 6*d) % 256  
+   - naujas[2] = (4*a + 15*b + 8*c + 12*d) % 256
+   - naujas[3] = (14*a + 2*b + 10*c + 16*d) % 256
+3. Jei lieka elementų mažiau nei 4, jie maišomi paprastai: `(elementas * 19 + pirmas_elementas * 23) % 256`
+
+**IŠVADA:** su 4x4 avalanche nepagerėjo, reik pabandyt su didesne.
+
+Bandysim su 1000x1000 matrica :Dd čia jau tikrai reikės OpenMP.
+Teko padaryt ribojimą, kad matricos dydis max toks kiek elementų masyve, bet ir maksimalus matricos dydis būtų 1000x1000, kad nesprogtų kompas jei būtų labai didelė įvestis, todėl deja jei masyvo dydis >1000, tai likę elementai bus maišomi paprastai. (Čia būtų galima vėliau pasidomėt kaip išspręst šitą reikalą)
+Taigi, matricos dydis prisitaiko prie duomenų.
+
+Matricos parametras
+```cpp
+size_t n = std::min(blocks.size(), (size_t)1000);
+```
+Matricos daugyba su OpenMP
+```cpp
+#pragma omp parallel for schedule(dynamic)
+  for (size_t i = 0; i < n; ++i) {
+      int sum = 0;
+      for (size_t j = 0; j < n; ++j) {
+      if (j < temp.size()) {
+        sum += matrix[i][j] * temp[j];
+        }
+      }
+      if (i < blocks.size()) {
+        blocks[i] = sum % 256;
+      }
+  }
+```
+
+**IŠVADA:** Nu man rodos čia reiktų OpenCL net ne OpenMP :Ddd šia kartui šią gražią 1000x1000 matricą išimsim. 
+
+Bet nusprendžiau dar pabandyt su 10X1O matrica.
+
+**IŠVADA:** greitis visiškai susigadino. 
+
+Bandau dar 3x3 matricą.
+
+**MATRICOS DYDŽIŲ PALYGINIMAS:**
+
+| Matricos dydis | Throughput | Compute time | Total time | Avalanche bits% | Išvada |
+|----------------|------------|--------------|------------|-----------------|---------|
+| **BE matricos** | 743k hash/s | 269ms | 3017ms | 44.308% | Baseline |
+| **3x3 matrica** | **769k hash/s** | 260ms | 3264ms | **44.481%** | ✅ **OPTIMALUS** |
+| **4x4 matrica** | 862k hash/s | 232ms | 3052ms | 43.862% | Greitas bet avalanche pablogėjo |
+| **10x10 matrica** | 107k hash/s | 1863ms | 9292ms | 44.476% | ❌ Per lėtas |
+
+**GALUTINĖ IŠVADA:** paliksiu 3x3 matricą dėl grožio (originalumo :Dd), bet šiaip ir avalanche geriausias ir greičio labai nepagadino, tai vis šis tas.
+
+
 ---
 
 ## Eksperimentinis tyrimas 
@@ -130,8 +197,8 @@ Testams pritaikytas OpenMP su 24 threads.
 |      32 |                  0.00 |
 |      64 |                  0.00 |
 |     128 |                  0.00 |
-|     256 |                  1.00 |
-|     512 |                  3.00 |
+|     256 |                  1.20 |
+|     512 |                  3.20 |
 
 **Komentaras:** algoritmas yra visai efektyvus.
 
@@ -143,14 +210,15 @@ Testams pritaikytas OpenMP su 24 threads.
 
 **Eiga:** generuojama po 100 000 porų įvairaus ilgio (10, 100, 500, 1000 simbolių) ir lyginami hash’ai.
 
-**Rezultatai (su ASCII maišytuvu ir 24 threads paralelizacija):**
 
-| Ilgis (simbolių) | Porų skaičius | Kolizijų skaičius | Kolizijų dažnis | 
-| ---------------: | ------------: | ----------------: | --------------: | 
-|               10 |       100,000 |                 0 |       0.000000% |           
-|              100 |       100,000 |                 0 |       0.000000% |           
-|              500 |       100,000 |                 0 |       0.000000% |            
-|             1000 |       100,000 |                 0 |       0.000000% |            
+| Ilgis (simbolių) | Porų skaičius | Kolizijų skaičius | Kolizijų dažnis |
+| ---------------: | ------------: | ----------------: | --------------: |
+|               10 |       100,000 |                 0 |       0.000000% |
+|              100 |       100,000 |                 0 |       0.000000% |
+|              500 |       100,000 |                 0 |       0.000000% |
+|             1000 |       100,000 |                 0 |       0.000000% |
+
+         
 
 **Komentaras:** kolizijų nepastebėta.
 
@@ -162,8 +230,11 @@ Testams pritaikytas OpenMP su 24 threads.
 
 **Eiga:** testuojamos poros, kurios skiriasi tik vienu simboliu. Skaičiuojama, kiek procentų bitų pasikeičia.
 
+**Rezultatai (su 3x3 matrica, 100k porų, 24 threads):**
+  - **Throughput:** 772,200 hash/s
+  - **Compute time:** 259ms 
   - **Bitų lygiu:** min=0.0%, max=60.9%, **avg=44.5%**
-  - **Hex lygiu:** min=0.0%, max=95.3%, **avg=75.0%**
+  - **Hex lygiu:** min=0.0%, max=96.1%, **avg=75.1%**
 
 **Komentaras:** pridėjus ASCII maišymą ir kitą papildomą maišymą (abiejų principas, kad elementai maišosi pagal jų vertę) lavina pagerėjo per 30%. 
 
@@ -181,16 +252,16 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ---
 
-## Rezultatų santrauka (2025-09-30)
+## Rezultatų santrauka (2025-09-30 su 3x3 matrica)
 
 * ✅ **Ilgis** – visada 64 simboliai
 * ✅ **Deterministiškumas** – užtikrintas visais atvejais
-* ✅ **Avalanche efektas** – 44.5% bitų pokytis, 75% hex pokytis (puiku!)
+* ✅ **Avalanche efektas** – 44.5% bitų pokytis, 75.1% hex pokytis (puiku!)
 * ✅ **Kolizijos** – 0 kolizijų iš 400,000 testų
-* ✅ **Efektyvumas** – linijinis augimas, nepablogėjo su ASCII maišytuvu
+* ✅ **Efektyvumas** – linijinis augimas, 772k hash/s su matrica
 * ✅ **Negrįžtamumas** – sėkmingai demonstruotas su salt'ais
-* ✅ **Paralelizacija** – testai 331k hash/s su 24 threads
-* ✅ **ASCII maišytuvas** – dramatiškai pagerino avalanche be greičio praradimo
+* ✅ **Paralelizacija** – testai su 24 threads OpenMP
+* ✅ **3x3 matrica** – optimalus balansas tarp avalanche ir greičio
 
 ---
 
@@ -199,11 +270,14 @@ Testams pritaikytas OpenMP su 24 threads.
 * ✅ **Patobulint seed maišymą** - minimaliai
 * ✅ **Pertikrint algortimo žingsnius** - optimizavau algoritmą
 * ✅**Palyginimas su egzistuojančiais hash generatoriais** - palyginau su MD5
+* ✅ **Kažką su matricom** - padariau daugyba su 3x3 matrica
 
 
 ## Tolimesni darbai 
 
+* **Palygunimas su MD5 į README**
 * **Pseudo kodas į README**
+* **Diagramos į README**
 * **Pritaikyt OpenMP/OpenCL pagrindiniam algoritmui** - kaži ar būtina
 * **Dar pagerint lavinos efektą** - jei sugalvosiu kažką protingo
 * **Pagerinti seed maišymą**

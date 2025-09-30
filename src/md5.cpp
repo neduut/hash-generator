@@ -1,6 +1,4 @@
 #include "md5.h"
-#include "tests.h"
-#include "hash.h"
 #include "mylib.h"
 #include <iostream>
 #include <iomanip>

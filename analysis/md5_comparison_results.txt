@@ -1,7 +1,8 @@
+
 MANO HASHO
 
-TEST SESSION START @ 2025-09-30 17:53:30
-[PERFORMANCE] 2025-09-30 17:53:30
+TEST SESSION START @ 2025-09-30 23:51:33
+[PERFORMANCE] 2025-09-30 23:51:39
 lines,avg_ms
 1,0.00
 2,0.00
@@ -11,45 +12,45 @@ lines,avg_ms
 32,0.00
 64,0.00
 128,0.00
-256,1.00
-512,3.60
+256,1.20
+512,3.20
 
-[COLLISIONS] 2025-09-30 17:53:30  NUM_PAIRS=100000 THREADS=24
-L=10, collisions=0, rate=0.000000%, compute_time=57ms, total_time=67ms
-L=100, collisions=0, rate=0.000000%, compute_time=138ms, total_time=216ms
-L=500, collisions=0, rate=0.000000%, compute_time=493ms, total_time=886ms
-L=1000, collisions=0, rate=0.000000%, compute_time=1069ms, total_time=1774ms
-TOTAL_TIME=3017ms, THREADS=24
+[COLLISIONS] 2025-09-30 23:51:40  NUM_PAIRS=100000 THREADS=24
+L=10, collisions=0, rate=0.000000%, compute_time=49ms, total_time=61ms
+L=100, collisions=0, rate=0.000000%, compute_time=141ms, total_time=221ms
+L=500, collisions=0, rate=0.000000%, compute_time=575ms, total_time=952ms
+L=1000, collisions=0, rate=0.000000%, compute_time=1113ms, total_time=1854ms
+TOTAL_TIME=3159ms, THREADS=24
 
-[AVALANCHE] 2025-09-30 17:53:34  NUM_PAIRS=100000 LEN=200 THREADS=24
-TIMING: data_gen=84ms, compute=269ms, total=353ms
-THROUGHPUT: 743494.4 hash/s
-bits%  min=0.000  max=60.156  avg=44.308
-hex%   min=0.000  max=96.094  avg=75.017
+[AVALANCHE] 2025-09-30 23:51:43  NUM_PAIRS=100000 LEN=200 THREADS=24
+TIMING: data_gen=89ms, compute=259ms, total=349ms
+THROUGHPUT: 772200.8 hash/s
+bits%  min=0.000  max=60.938  avg=44.481
+hex%   min=0.000  max=96.094  avg=75.091
 
-[HIDING] 2025-09-30 17:53:34
-salt="salt1" -> XlH1IfSdwPLyZZzQ1mHrDNKJKOiXwvIkuJEJBo9vt3f65dhfFjqDZJ2XPm59BDkq
-salt="salt1" -> XlH1IfSdwPLyZZzQ1mHrDNKJKOiXwvIkuJEJBo9vt3f65dhfFjqDZJ2XPm59BDkq
-salt="salt2" -> 967yHkzNjyutSoTaZK7XozZhwvrC9V5FUylp5h2S8NerfbfpvYzJRHbVEA3umOXs
-salt="ilgesnis_saltas_123" -> EVqX0Juqfpx7eavePpVJmsAETqP6WKtLWuQtvXplYSlxEB89yBVxUayC2n7Byv0c
-salt="!" -> pIUHknzyD95KHcIM2tcEyhoBIyTahxpSkM7he8cuHhNPWL3ivuRURQONwQXi1Le6
-salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> T1mHGm37buJRTVZif7Z8DwvrGNwtHP2INic648j4aCax5osWmuohE3xduE22aqIE
-[2025-09-30 17:53:30] RUN 1 - išvedimo dydis
+[HIDING] 2025-09-30 23:51:43
+salt="salt1" -> 5VPpFWpVXi7t4TZV8iAcywkMh5AQrmq3uaisd3urYyGEdtRc18illTnHV78xEXOE
+salt="salt1" -> 5VPpFWpVXi7t4TZV8iAcywkMh5AQrmq3uaisd3urYyGEdtRc18illTnHV78xEXOE
+salt="salt2" -> UJGEdjLtAq17ht4mHObAVKGmIFBgnDcEqldgFBdQq0AcQf9QoO1Rjzd12PdrVSX3
+salt="ilgesnis_saltas_123" -> n4jIiLF69fGtBWBgDyV4tmfioBoRsfYCDmuusRMDzQGR6MJUPBwsxYbBllB0JREk
+salt="!" -> 7zKxuQRruHs98tpTYsypbSJ73RLCJ7mv9bqKxBMRxEBI2FdMPa3XBWI1tAxytuPV
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> 5v24xvJnlw5tO6WsnlC7ciUUilysarz16LvSPiOvVMiFgFAv4smVaELfnh3Tk6Ej
+[2025-09-30 23:51:39] RUN 1 - išvedimo dydis
 OK 1 - išvedimo dydis
 OK išvedimo dydis (1ms)
-[2025-09-30 17:53:30] RUN 2 - deterministiškumas
+[2025-09-30 23:51:39] RUN 2 - deterministiškumas
 OK 2 - deterministiškumas
 OK deterministiškumas (2ms)
-[2025-09-30 17:53:30] RUN 4 - efektyvumas
+[2025-09-30 23:51:39] RUN 4 - efektyvumas
 OK 4 - efektyvumas
-OK efektyvumas (34ms)
-[2025-09-30 17:53:30] RUN 5 - kolizijos (100000 porų), threads=24
+OK efektyvumas (49ms)
+[2025-09-30 23:51:40] RUN 5 - kolizijos (100000 porų), threads=24
 OK 5 - kolizijos
-OK kolizijos (3018ms)
-[2025-09-30 17:53:34] RUN 6 - lavina (100000 porų), threads=24
+OK kolizijos (3160ms)
+[2025-09-30 23:51:43] RUN 6 - lavina (100000 porų), threads=24
 OK 6 - lavina
-OK lavinos efektas (370ms)
-[2025-09-30 17:53:34] RUN 7 - hiding
+OK lavinos efektas (364ms)
+[2025-09-30 23:51:43] RUN 7 - hiding
 OK 7 - hiding
 OK hiding (0ms)
 SUMMARY: OK

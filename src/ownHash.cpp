@@ -1,4 +1,4 @@
-#include "hash.h"
+#include "ownHash.h"
 #include "constants.h"
 
 #include <array>
@@ -105,6 +105,39 @@ namespace {
         }
     }
 
+    // daugyba su 3x3 matrica
+    void simple_matrix_mix(vector<int>& blocks) {
+        if (blocks.size() < 3) return;
+        
+        int matrix[3][3] = {
+            {7, 13, 5},
+            {9, 3, 17},
+            {4, 15, 8}
+        };
+        
+        vector<int> temp = blocks;
+        
+        // imu po 3 elementus ir daugu su matrica
+        for (size_t i = 0; i + 2 < blocks.size(); i += 3) {
+            int a = temp[i];
+            int b = temp[i + 1];
+            int c = temp[i + 2];
+            
+            blocks[i]     = (matrix[0][0]*a + matrix[0][1]*b + matrix[0][2]*c) % 256;
+            blocks[i + 1] = (matrix[1][0]*a + matrix[1][1]*b + matrix[1][2]*c) % 256;
+            blocks[i + 2] = (matrix[2][0]*a + matrix[2][1]*b + matrix[2][2]*c) % 256;
+        }
+        
+        // jei liko masyve maziau nei 3 nesudauginti elementai tai juos paprastai sumaisau
+        size_t remaining = blocks.size() % 3;
+        if (remaining > 0) {
+            size_t start = blocks.size() - remaining;
+            for (size_t i = start; i < blocks.size(); ++i) {
+                blocks[i] = (temp[i] * 19 + temp[0] * 23) % 256;
+            }
+        }
+    }
+
 } // namespace
 
 string generate_hashe(const string& user_input) {
@@ -118,7 +151,7 @@ string generate_hashe(const string& user_input) {
         ascii_vals.push_back(0);
     }
 
-    // 2) ivairiausi maisyma hash generavimo vyksta 4 roundai
+    // 2) ivairiausi maisymai hash generavimo vyksta 4 roundai 
     constexpr int ROUNDS = 4;
 
     // dabartinio roundo duomenys
@@ -137,7 +170,10 @@ string generate_hashe(const string& user_input) {
         // c) ASCII maisyma kur vienas elementas paveikia kitus 3 - stipriausias efektas
         ascii_mixer(blocks_flat);
 
-        // d) padalinu masyva per puse ir sukeiciu dalis vietomis - finalus permutation
+        // d) daugyba su matrica
+        simple_matrix_mix(blocks_flat);
+
+        // e) padalinu masyva per puse ir sukeiciu dalis vietomis - finalus permutation
         swap_halves(blocks_flat);
 
         // jei tuscia ivestis
