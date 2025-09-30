@@ -272,7 +272,7 @@ Visi rezultatai rašomi į **`analysis/`** katalogą.
 
 ---
 
-## Rezultatų santrauka (2025-09-30 su ASCII maišytuvu)
+## Rezultatų santrauka (2025-09-30)
 
 * ✅ **Ilgis** – visada 64 simboliai
 * ✅ **Deterministiškumas** – užtikrintas visais atvejais
