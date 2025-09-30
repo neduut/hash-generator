@@ -1,7 +1,8 @@
 #include "mylib.h"
 #include "tests.h"
-#include "functions.h"
+#include "hash.h"
 #include "constants.h"
+#include "md5.h"
 
 #include <filesystem>
 #include <unordered_set>
@@ -10,7 +11,54 @@
 #include <cstring>     // std::strchr
 #include <omp.h>       // OpenMP for parallel tests
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 namespace fs = std::filesystem;
+
+// ======== Gražesni konsolės pranešimai / spalvos / runneris ========
+namespace ui {
+    // ANSI spalvos (jei nepalaikoma – bus tiesiog tekstas)
+    static constexpr const char* RESET = "\033[0m";
+    static constexpr const char* BOLD  = "\033[1m";
+    static constexpr const char* DIM   = "\033[2m";
+    static constexpr const char* CYAN  = "\033[36m";
+    static constexpr const char* GREEN = "\033[32m";
+    static constexpr const char* RED   = "\033[31m";
+    static constexpr const char* YELL  = "\033[33m";
+
+    inline void enable_ansi_if_needed() {
+    #ifdef _WIN32
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hOut != INVALID_HANDLE_VALUE) {
+            DWORD mode = 0;
+            if (GetConsoleMode(hOut, &mode)) {
+                mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                SetConsoleMode(hOut, mode);
+            }
+        }
+    #endif
+    }
+
+    inline void print_run(const std::string& name) {
+        std::cout << BOLD << CYAN << "[ RUN ]" << RESET << " " << name << "...\n";
+    }
+    inline void print_ok(const std::string& name, long long ms) {
+        std::cout << BOLD << GREEN << "[ OK ]" << RESET << " " << name
+                  << "  (" << ms << " ms)\n";
+    }
+    inline void print_fail(const std::string& name, const std::string& why, long long ms) {
+        std::cerr << BOLD << RED << "[ FAILED]" << RESET << " " << name
+                  << " — " << why << "  (" << ms << " ms)\n";
+    }
+    inline void print_warn(const std::string& msg) {
+        std::cout << BOLD << YELL << "[ WARN ]" << RESET << " " << msg << "\n";
+    }
+}
+
+// Dabartinio testo pavadinimas (ASSERT makro sužinos, kas krito)
+static thread_local const char* g_current_test_name = "";
 
 // Set optimal thread count for maximum performance
 static void set_optimal_threads() {
@@ -21,7 +69,6 @@ static void set_optimal_threads() {
 
 static inline string ANALYSIS_DIR() { return "analysis"; }
 static inline string REPORT_PATH()  { return ANALYSIS_DIR() + string("/tests_report.txt"); }
-static inline string PERF_CSV()     { return ANALYSIS_DIR() + string("/perf.csv"); }
 
 static int env_int(const char* name, int defv) {
     const char* v = std::getenv(name);
@@ -62,12 +109,20 @@ struct Logger {
     void flush() { if (out) out.flush(); }
 };
 
-#define ASSERT_TRUE_RET(expr, msg) do { \
-    if (!(expr)) { \
-        cerr << "[FAIL] " << msg << "\n"; \
-        if (g_log) (*g_log) << "[FAIL] " << msg << "\n"; \
-        return false; \
-    } \
+// Globalus laiko kintamasis ASSERT makro
+static thread_local std::chrono::high_resolution_clock::time_point g_test_start_time;
+
+#define ASSERT_TRUE_RET(expr, msg) do {                                      \
+    if (!(expr)) {                                                            \
+        auto __t1 = std::chrono::high_resolution_clock::now();                \
+        long long __ms = std::chrono::duration_cast<std::chrono::milliseconds>(\
+            __t1 - g_test_start_time).count();                                \
+        ui::print_fail(g_current_test_name ? g_current_test_name : "testas",  \
+                       (msg), __ms);                                          \
+        if (g_log) (*g_log) << "FAIL " << (g_current_test_name ? g_current_test_name : "testas") \
+                            << " - " << (msg) << " (" << __ms << "ms)\n";     \
+        return false;                                                         \
+    }                                                                         \
 } while(0)
 
 // --------- failų utilitai (punktas #1) ----------
@@ -178,8 +233,30 @@ static double hex_level_diff_percent(const string& h1, const string& h2) {
 
 static Logger* g_log = nullptr;
 
+// Universalus runneris: iškviečia testą, pamatuoja laiką, atspausdina statusą
+template <class F>
+static bool run_test(const std::string& name, F&& fn) {
+    g_current_test_name = name.c_str();
+    ui::print_run(name);
+    g_test_start_time = std::chrono::high_resolution_clock::now();
+    auto __t0 = g_test_start_time;
+    
+    bool ok = fn();
+
+    auto __t1 = std::chrono::high_resolution_clock::now();
+    long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(__t1 - __t0).count();
+
+    if (ok) {
+        ui::print_ok(name, ms);
+        if (g_log) (*g_log) << "OK " << name << " (" << ms << "ms)\n";
+    } else {
+        // jei pats testas jau atspausdino FAIL – čia nebedubliuojam priežasties
+        if (g_log) (*g_log) << "FAIL " << name << " (" << ms << "ms)\n";
+    }
+    return ok;
+}
+
 static bool test_1_output_size() {
-    cout << "[RUN] 1 - išvedimo dydis ...\n";
     if (g_log) (*g_log) << "[" << now_ts() << "] RUN 1 - išvedimo dydis\n";
 
     // vidiniai pavyzdžiai
@@ -187,7 +264,7 @@ static bool test_1_output_size() {
         "", "a", "Labas", string(10, 'x'), string(1234, 'y'), "ąčęėįšųūž"
     };
     for (auto& s : samples) {
-        string h = generate_hashe(s);
+        string h = md5_hash(s);
         ASSERT_TRUE_RET(h.size() == 64u, "hash dydis turi būti 64");
         for (char c : h) ASSERT_TRUE_RET(std::strchr(BASE62, c) != nullptr, "hash simboliai turi būti iš BASE62");
     }
@@ -204,26 +281,24 @@ static bool test_1_output_size() {
     };
     for (auto& p : files_to_check) {
         string s = slurp_file_text(p);
-        string h = generate_hashe(s);
+        string h = md5_hash(s);
         ASSERT_TRUE_RET(h.size() == 64u, string("hash dydis turi būti 64 (") + p + ")");
         for (char c : h) ASSERT_TRUE_RET(std::strchr(BASE62, c) != nullptr, string("hash simboliai turi būti iš BASE62 (") + p + ")");
     }
 
-    cout << "OK 1 - išvedimo dydis\n";
     if (g_log) (*g_log) << "OK 1 - išvedimo dydis\n";
     return true;
 }
 
 static bool test_2_determinism() {
-    cout << "[RUN] 2 - deterministiškumas ...\n";
     if (g_log) (*g_log) << "[" << now_ts() << "] RUN 2 - deterministiškumas\n";
 
     // su atsitiktiniais string’ais
     std::mt19937_64 rng(1234567);
     for (int i=0;i<10;++i) {
         string s = random_string(rng, 200);
-        string h1 = generate_hashe(s);
-        string h2 = generate_hashe(s);
+        string h1 = md5_hash(s);
+        string h2 = md5_hash(s);
         ASSERT_TRUE_RET(h1 == h2, "tas pats įvedimas turi duoti tą patį hash (string)");
     }
 
@@ -239,33 +314,32 @@ static bool test_2_determinism() {
     };
     for (auto& p : files_to_check) {
         string s = slurp_file_text(p);
-        string h1 = generate_hashe(s);
-        string h2 = generate_hashe(s);
+        string h1 = md5_hash(s);
+        string h2 = md5_hash(s);
         ASSERT_TRUE_RET(h1 == h2, string("tas pats FAILAS turi duoti tą patį hash (") + p + ")");
     }
 
-    cout << "OK 2 - deterministiškumas\n";
     if (g_log) (*g_log) << "OK 2 - deterministiškumas\n";
     return true;
 }
 
 static bool test_4_performance() {
-    cout << "[RUN] 4 - efektyvumas ... (rašau į " << PERF_CSV() << ")\n";
     if (g_log) (*g_log) << "[" << now_ts() << "] RUN 4 - efektyvumas\n";
 
     const string path = string("files/") + "konstitucija.txt";
     vector<string> lines;
     if (!read_all_lines(path, lines) || lines.empty()) {
-        cout << "[WARN] Neradau files/konstitucija.txt arba jis tuščias – praleidžiu.\n";
+        cout << " [WARN] Neradau konstitucija.txt - praleista\n";
         if (g_log) (*g_log) << "WARN 4 - nėra konstitucija.txt, praleista\n";
         return true;
     }
 
     ensure_analysis_dir();
 
-    // CSV perrašomas kiekvienos sesijos metu
-    ofstream csv(PERF_CSV(), std::ios::trunc);
-    csv << "lines,avg_ms\n";
+    // Write performance data to the main report file
+    ofstream rep(REPORT_PATH(), std::ios::app);
+    rep << "[PERFORMANCE] " << now_ts() << "\n";
+    rep << "lines,avg_ms\n";
 
     vector<size_t> sizes;
     for (size_t n=1; n<=lines.size(); n<<=1) sizes.push_back(n);
@@ -281,25 +355,22 @@ static bool test_4_performance() {
                 input_cat += lines[i];
             }
             auto t0 = std::chrono::high_resolution_clock::now();
-            volatile string h = generate_hashe(input_cat);
+            volatile string h = md5_hash(input_cat);
             (void)h;
             auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(
                           std::chrono::high_resolution_clock::now() - t0).count();
             acc_ms += dt;
         }
         double avg = double(acc_ms) / REPEATS;
-        cout << "  " << n << " eilučių -> " << fixed << setprecision(2) << avg << " ms\n";
-        csv << n << "," << fixed << setprecision(2) << avg << "\n";
+        rep << n << "," << fixed << setprecision(2) << avg << "\n";
     }
 
-    cout << "OK 4 - efektyvumas (CSV parašytas)\n";
-    if (g_log) (*g_log) << "OK 4 - efektyvumas (CSV parašytas)\n";
+    if (g_log) (*g_log) << "OK 4 - efektyvumas\n";
     return true;
 }
 
 static bool test_5_collisions() {
     const int NUM_PAIRS = env_int("TEST_NUM_PAIRS", 100000);
-    cout << "[RUN] 5 - kolizijų paieška ... (porų: " << NUM_PAIRS << " kiekvienam ilgiui)\n";
     if (g_log) (*g_log) << "[" << now_ts() << "] RUN 5 - kolizijos (" << NUM_PAIRS << " porų), threads=" << omp_get_max_threads() << "\n";
 
     vector<size_t> L = {10, 100, 500, 1000};
@@ -327,7 +398,7 @@ static bool test_5_collisions() {
         // Parallel collision detection
         #pragma omp parallel for reduction(+:collisions)
         for (int i = 0; i < NUM_PAIRS; ++i) {
-            if (generate_hashe(test_pairs[i].first) == generate_hashe(test_pairs[i].second)) {
+            if (md5_hash(test_pairs[i].first) == md5_hash(test_pairs[i].second)) {
                 ++collisions;
             }
         }
@@ -337,8 +408,6 @@ static bool test_5_collisions() {
         auto len_ms = std::chrono::duration_cast<std::chrono::milliseconds>(compute_end - len_start).count();
         
         double rate = 100.0 * collisions / double(NUM_PAIRS);
-        cout << "  L=" << len << ": " << collisions << " kolizijų (" << fixed << setprecision(6) << rate << "%) - " 
-             << compute_ms << "ms (total: " << len_ms << "ms)\n";
         rep  << "L=" << len << ", collisions=" << collisions << ", rate=" << fixed << setprecision(6) << rate 
              << "%, compute_time=" << compute_ms << "ms, total_time=" << len_ms << "ms\n";
     }
@@ -346,10 +415,8 @@ static bool test_5_collisions() {
     auto test_end = std::chrono::high_resolution_clock::now();
     auto total_ms = std::chrono::duration_cast<std::chrono::milliseconds>(test_end - test_start).count();
     
-    cout << "  BENDRAS laikas: " << total_ms << "ms (optimizuota paralelizacija)\n";
     rep << "TOTAL_TIME=" << total_ms << "ms, THREADS=" << omp_get_max_threads() << "\n";
 
-    cout << "OK 5 - kolizijos\n";
     if (g_log) (*g_log) << "OK 5 - kolizijos\n";
     return true;
 }
@@ -357,7 +424,6 @@ static bool test_5_collisions() {
 static bool test_6_avalanche() {
     const int NUM_PAIRS = env_int("TEST_NUM_PAIRS", 100000);
     const size_t LEN = 200;
-    cout << "[RUN] 6 - lavinos efektas ... (porų: " << NUM_PAIRS << ", ilgis=" << LEN << ")\n";
     if (g_log) (*g_log) << "[" << now_ts() << "] RUN 6 - lavina (" << NUM_PAIRS << " porų), threads=" << omp_get_max_threads() << "\n";
 
     auto test_start = std::chrono::high_resolution_clock::now();
@@ -395,8 +461,8 @@ static bool test_6_avalanche() {
         
         #pragma omp for
         for (int i = 0; i < NUM_PAIRS; ++i) {
-            string h1 = generate_hashe(test_pairs[i].first);
-            string h2 = generate_hashe(test_pairs[i].second);
+            string h1 = md5_hash(test_pairs[i].first);
+            string h2 = md5_hash(test_pairs[i].second);
 
             double db = hamming_bits_base62(h1, h2);
             double dh = hex_level_diff_percent(h1, h2);
@@ -409,12 +475,7 @@ static bool test_6_avalanche() {
             local_max_hex = std::max(local_max_hex, dh);
             local_sum_hex += dh;
 
-            // Progress reporting from thread 0 only
-            if (omp_get_thread_num() == 0 && (i+1) % 20000 == 0) {
-                auto prog_time = std::chrono::high_resolution_clock::now();
-                auto prog_ms = std::chrono::duration_cast<std::chrono::milliseconds>(prog_time - compute_start).count();
-                cout << "  progreso: " << (i+1) << "/" << NUM_PAIRS << " (" << prog_ms << "ms)\n";
-            }
+            // Progress removed for cleaner console output
         }
         
         // Combine results from all threads
@@ -439,10 +500,6 @@ static bool test_6_avalanche() {
     auto test_end = std::chrono::high_resolution_clock::now();
     auto total_ms = std::chrono::duration_cast<std::chrono::milliseconds>(test_end - test_start).count();
 
-    cout << "  LAIKAI: duomenų generavimas=" << data_ms << "ms, skaičiavimai=" << compute_ms << "ms, bendras=" << total_ms << "ms\n";
-    cout << "  GREITIS: " << fixed << setprecision(1) 
-         << (double(NUM_PAIRS * 2) / compute_ms * 1000.0) << " hash/s (optimizuota paralelizacija)\n";
-
     ensure_analysis_dir();
     ofstream rep(REPORT_PATH(), std::ios::app);
     rep << "\n[AVALANCHE] " << now_ts() << "  NUM_PAIRS=" << NUM_PAIRS << " LEN=" << LEN << " THREADS=" << omp_get_max_threads() << "\n";
@@ -453,13 +510,11 @@ static bool test_6_avalanche() {
     rep << "hex%   min=" << min_hex
         << "  max=" << max_hex  << "  avg=" << avg_hex  << "\n";
 
-    cout << "OK 6 - lavina\n";
     if (g_log) (*g_log) << "OK 6 - lavina\n";
     return true;
 }
 
 static bool test_7_hiding() {
-    cout << "[RUN] 7 - negrįžtamumo demonstracija (HASH(input + salt)) ...\n";
     if (g_log) (*g_log) << "[" << now_ts() << "] RUN 7 - hiding\n";
 
     const string input = "Tai yra testinis tekstas su diakritiniais ženklais ąčęėįšųūž.";
@@ -473,19 +528,17 @@ static bool test_7_hiding() {
     rep << "\n[HIDING] " << now_ts() << "\n";
 
     for (auto& salt : salts) {
-        string h = generate_hashe(input + salt);
+        string h = md5_hash(input + salt);
         hashes.insert(h);
-        cout << "  salt=\"" << salt << "\" -> " << h << "\n";
         rep  << "salt=\"" << salt << "\" -> " << h << "\n";
     }
     bool ok = (hashes.size() == size_t(5)); // 5 unikalūs (nes "salt1" du kartus)
     if (!ok) {
-        cout << "[FAIL] tikėtasi 5 unikalių hash'ų\n";
+        ui::print_fail("hiding testas", "tikėtasi 5 unikalių hash'ų", 0);
         if (g_log) (*g_log) << "FAIL 7 - hiding\n";
         return false;
     }
 
-    cout << "OK 7 - hiding\n";
     if (g_log) (*g_log) << "OK 7 - hiding\n";
     return true;
 }
@@ -517,6 +570,9 @@ struct SessionGuard {
 };
 
 bool run_tests_menu() {
+    // Enable ANSI colors in Windows console
+    ui::enable_ansi_if_needed();
+    
     // Set optimal thread count for maximum performance
     set_optimal_threads();
     
@@ -560,34 +616,36 @@ bool run_tests_menu() {
 
         bool ok = true;
         if (choice == "0") {
-            ok &= test_1_output_size();
-            ok &= test_2_determinism();
-            ok &= test_4_performance();
-            ok &= test_5_collisions();
-            ok &= test_6_avalanche();
-            ok &= test_7_hiding();
+            ok &= run_test("išvedimo dydis", test_1_output_size);
+            ok &= run_test("deterministiškumas", test_2_determinism);
+            ok &= run_test("efektyvumas", test_4_performance);
+            ok &= run_test("kolizijos", test_5_collisions);
+            ok &= run_test("lavinos efektas", test_6_avalanche);
+            ok &= run_test("hiding", test_7_hiding);
         } else if (choice == "1") {
-            ok = test_1_output_size();
+            ok = run_test("išvedimo dydis", test_1_output_size);
         } else if (choice == "2") {
-            ok = test_2_determinism();
+            ok = run_test("deterministiškumas", test_2_determinism);
         } else if (choice == "4") {
-            ok = test_4_performance();
+            ok = run_test("efektyvumas", test_4_performance);
         } else if (choice == "5") {
-            ok = test_5_collisions();
+            ok = run_test("kolizijos", test_5_collisions);
         } else if (choice == "6") {
-            ok = test_6_avalanche();
+            ok = run_test("lavinos efektas", test_6_avalanche);
         } else if (choice == "7") {
-            ok = test_7_hiding();
+            ok = run_test("hiding", test_7_hiding);
         } else {
             cout << "Neteisingas pasirinkimas.\n";
             continue;
         }
 
         if (ok) {
-            cout << "SUMMARY: OK\n";
+            ui::print_ok("Visi testai", 0);
+            cout << "Detalūs rezultatai įrašyti į " << REPORT_PATH() << "\n";
             (*g_log) << "SUMMARY: OK\n";
         } else {
-            cout << "SUMMARY: FAIL\n";
+            ui::print_fail("Testai", "žiūrėk aukščiau", 0);
+            cout << "Rezultatai įrašyti į " << REPORT_PATH() << "\n";
             (*g_log) << "SUMMARY: FAIL\n";
         }
         g_log->flush();

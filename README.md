@@ -6,7 +6,12 @@
 
 ## Vartotojo įvestis
 
-* Gali pasirinkti:
+* 1. Meniu gali pasirinkti:
+  * Generuoti hash
+  * Atlikti tyrimą
+  * Palyginti su MD5
+
+* 2. Įvestį gali pasirinkti:
   * **Iš failo** (`files/...`)
   * **Įrašyti ranka** (viena eilutė)
 * Įvesties klaidoms aptikti naudojami `try/catch` (aiškūs pranešimai, leidžia bandyti iš naujo).
@@ -76,11 +81,16 @@ e) apverciu visa masyva
 
 **IŠVADA:** praradau tik 0.14% avalanche efekto, bet gavau +111% performance pagerinimą.
 
+### 3 užduotis: palygint su jau egzistuojančiu Hash
+
+Palyginau su MD5
+
 ---
 
 ## Eksperimentinis tyrimas 
 
 Visi rezultatai rašomi į **`analysis/`** katalogą.
+Testams pritaikytas OpenMP su 24 threads.
 
 ### 1) Išvedimo dydis (64 simboliai)
 
@@ -119,11 +129,11 @@ Visi rezultatai rašomi į **`analysis/`** katalogą.
 |      16 |                  0.00 |
 |      32 |                  0.00 |
 |      64 |                  0.00 |
-|     128 |                  1.00 |
-|     256 |                  3.00 |
-|     512 |                  7.60 |
+|     128 |                  0.00 |
+|     256 |                  1.00 |
+|     512 |                  3.00 |
 
-**Komentaras:** algoritmas rodo beveik linijinį augimą, yra visai efektyvus.
+**Komentaras:** algoritmas yra visai efektyvus.
 
 ---
 
@@ -187,15 +197,16 @@ Visi rezultatai rašomi į **`analysis/`** katalogą.
 ## Atlikti darbai v0.12
 
 * ✅ **Patobulint seed maišymą** - minimaliai
-* ✅ **Pertikrinau algortimo žingsnius** - sutrumpinau išimant nereikšmingus žingsnius
+* ✅ **Pertikrint algortimo žingsnius** - optimizavau algoritmą
+* ✅**Palyginimas su egzistuojančiais hash generatoriais** - palyginau su MD5
 
 
 ## Tolimesni darbai 
 
+* **Pseudo kodas į README**
 * **Pritaikyt OpenMP/OpenCL pagrindiniam algoritmui** - kaži ar būtina
 * **Dar pagerint lavinos efektą** - jei sugalvosiu kažką protingo
 * **Pagerinti seed maišymą**
-* **Palyginimas su egzistuojančiais hash generatoriais** - BONUS
 * **AI siūlomi patobulinimai** - bet tik versijoj v0.2
 
 

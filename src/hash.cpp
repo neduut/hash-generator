@@ -1,4 +1,4 @@
-#include "functions.h"
+#include "hash.h"
 #include "constants.h"
 
 #include <array>
