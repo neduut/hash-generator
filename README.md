@@ -24,7 +24,7 @@
    d) Sujungiu masyvą
    e) Apverčiu visą masyvą
    f) Sukeičiu puses
-   g) ASCII maišymas (kievienas ele. paveikia kitus 3)
+   g) ASCII maišymas (kievienas el. paveikia kitus 3)
 3. Seed (fiksuotas 32 simbolių string'as)
 4. Maišymas su seed
 5. Base62 kodavimas
@@ -38,8 +38,19 @@
 
 1) Padariau vietoj sudeties daugybą
 
-**IŠVADA:** pagerėjo greitis :Dd?
+**IŠVADA:** pagerėjo greitis :Dd? bet avanache nepakito
 
+2) Priklausomybė nuo elemento vietos
+
+i=0: (i+1) = 1 → elementas dauginamas iš 1
+i=1: (i+1) = 2 → elementas dauginamas iš 2
+i=2: (i+1) = 3 → elementas dauginamas iš 3
+i=50: (i+1) = 51 → elementas dauginamas iš 51
+Kad grįžtų į ribas padarau % 256
+
+Dabar tas pats elementas skirtingose vietose duos skirtingą reikšmę
+
+**IŠVADA:** daug reikšmės nedavė, labai minimaliai pagerėjo analanche ir efektyvumas kažkaip
 
 ---
 

@@ -177,7 +177,7 @@ string generate_hashe(const string& user_input) {
     // 4) maisymas su seed 
     for (size_t i = 0; i < blocks_flat.size(); ++i) {
         size_t si = i % seed.size(); // seed indeksa sukame ratu
-        int rez = ((int)(unsigned char)seed[si] * blocks_flat[i]) % 256; // daugyba + mod 256
+        int rez = ((int)(unsigned char)seed[si] * blocks_flat[i] * (i + 1)) % 256; // daugyba + pozicijos poveikis + mod 256
         seed[si] = to_base62(rez % 62); // mod 62 kad griztu i base62 simboli
     }
 
