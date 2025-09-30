@@ -174,12 +174,12 @@ string generate_hashe(const string& user_input) {
     // 3) seed su kuriuo maisysiu
     string seed = "Kx9mN3vL8qR5wY1pZ7jT2bF6hC4nA0sD"; // 32 simboliai
 
-    // 4) maisymas su seed
+    // 4) maisymas su seed 
     for (size_t i = 0; i < blocks_flat.size(); ++i) {
         size_t si = i % seed.size(); // seed indeksa sukame ratu
-        int sum = (int)(unsigned char)seed[si] + blocks_flat[i]; // seed ascii + masyvo elementas
-        seed[si] = to_base62(sum % 62); // mod 62 kad griztu i base62 simboli
-    }    
+        int rez = ((int)(unsigned char)seed[si] * blocks_flat[i]) % 256; // daugyba + mod 256
+        seed[si] = to_base62(rez % 62); // mod 62 kad griztu i base62 simboli
+    }
 
     // 5-6) sukuriu galutini hash – 64 base62 simboliai
     string out;
