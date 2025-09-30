@@ -793,3 +793,114 @@ OK 6 - lavina
 OK 7 - hiding
 SUMMARY: OK
 ========================================
+========================================
+TEST SESSION START @ 2025-09-30 13:37:08
+
+[COLLISIONS] 2025-09-30 13:37:10  NUM_PAIRS=100000 THREADS=24
+L=10, collisions=0, rate=0.000000%, compute_time=64ms, total_time=73ms
+L=100, collisions=0, rate=0.000000%, compute_time=194ms, total_time=278ms
+L=500, collisions=0, rate=0.000000%, compute_time=745ms, total_time=1114ms
+L=1000, collisions=0, rate=0.000000%, compute_time=1529ms, total_time=2280ms
+TOTAL_TIME=3820ms, THREADS=24
+
+[AVALANCHE] 2025-09-30 13:37:15  NUM_PAIRS=100000 LEN=200 THREADS=24
+TIMING: data_gen=91ms, compute=627ms, total=718ms
+THROUGHPUT: 318979.3 hash/s
+bits%  min=0.000  max=59.896  avg=44.465
+hex%   min=0.000  max=97.656  avg=75.037
+
+[HIDING] 2025-09-30 13:37:15
+salt="salt1" -> LuGWfDnDmzNi7EQxPyoqIhg1mCv2g7Bhr3rrsGVxOnC4Ruv9tS3hK5QApHnlaN7X
+salt="salt1" -> LuGWfDnDmzNi7EQxPyoqIhg1mCv2g7Bhr3rrsGVxOnC4Ruv9tS3hK5QApHnlaN7X
+salt="salt2" -> DhiDkXrhbxzveHCaWsRimEgfUfG4T2ln4vlBPbS8AnJtN5ujNy3QfPAEkx0blt7h
+salt="ilgesnis_saltas_123" -> KZ01W9jK7CNw69RQPKIXWnutcHKq9epPtPZ1GplvK63prA3CJSgchc5Rcb2DjOxr
+salt="!" -> g1gKI9LhYIU5tjSFS6yqe3ScKZALTQVB8to2S5NmLkAUyDey7eX1vb8lgJh5ZOkd
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> yO2dA0YZBXgcYAhu3Y0pBrihjMRSkWFxA315R5i4nI2X4tooqpb2UUyDc0kdKy3Q
+[2025-09-30 13:37:10] RUN 1 - išvedimo dydis
+OK 1 - išvedimo dydis
+[2025-09-30 13:37:10] RUN 2 - deterministiškumas
+OK 2 - deterministiškumas
+[2025-09-30 13:37:10] RUN 4 - efektyvumas
+OK 4 - efektyvumas (CSV parašytas)
+[2025-09-30 13:37:10] RUN 5 - kolizijos (100000 porų), threads=24
+OK 5 - kolizijos
+[2025-09-30 13:37:14] RUN 6 - lavina (100000 porų), threads=24
+OK 6 - lavina
+[2025-09-30 13:37:15] RUN 7 - hiding
+OK 7 - hiding
+SUMMARY: OK
+========================================
+========================================
+TEST SESSION START @ 2025-09-30 13:41:12
+
+[COLLISIONS] 2025-09-30 13:41:13  NUM_PAIRS=100000 THREADS=24
+L=10, collisions=0, rate=0.000000%, compute_time=67ms, total_time=78ms
+L=100, collisions=0, rate=0.000000%, compute_time=217ms, total_time=299ms
+L=500, collisions=0, rate=0.000000%, compute_time=648ms, total_time=1026ms
+L=1000, collisions=0, rate=0.000000%, compute_time=1297ms, total_time=2095ms
+TOTAL_TIME=3574ms, THREADS=24
+
+[AVALANCHE] 2025-09-30 13:41:17  NUM_PAIRS=100000 LEN=200 THREADS=24
+TIMING: data_gen=142ms, compute=602ms, total=744ms
+THROUGHPUT: 332225.9 hash/s
+bits%  min=0.000  max=60.677  avg=44.449
+hex%   min=0.000  max=96.875  avg=75.031
+
+[HIDING] 2025-09-30 13:41:17
+salt="salt1" -> LOJfXFlPvvLgb50BL8Tc8XBOiCg8C7bhrnuKaITJXjA2VVFdpsy3aLbnlH8rwNHX
+salt="salt1" -> LOJfXFlPvvLgb50BL8Tc8XBOiCg8C7bhrnuKaITJXjA2VVFdpsy3aLbnlH8rwNHX
+salt="salt2" -> BTH32BrJNN4mrp0e7spAmk0fQlAehUkn27K1xPSAcDek0NSnYyB8fvkEgDUlJl6h
+salt="ilgesnis_saltas_123" -> Oi2dO9KztmBw2PELNWtXuiaTiqwsPqSPx81dypMk6QRpngQxH41cP7LhiUOFZ00r
+salt="!" -> wygoY9bhQyCJcxqHBLmGQRmgZe1nLIDBo0oG85dmDaiyhRMAQTLh7ZCpvYIHRG2d
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> QOuSx07aBXerLWVpbJpTBBEz5kMugvtxS3tKO5rfnI0cRP2jyaAwU4UVYyfPG7RQ
+[2025-09-30 13:41:13] RUN 1 - išvedimo dydis
+OK 1 - išvedimo dydis
+[2025-09-30 13:41:13] RUN 2 - deterministiškumas
+OK 2 - deterministiškumas
+[2025-09-30 13:41:13] RUN 4 - efektyvumas
+OK 4 - efektyvumas (CSV parašytas)
+[2025-09-30 13:41:13] RUN 5 - kolizijos (100000 porų), threads=24
+OK 5 - kolizijos
+[2025-09-30 13:41:16] RUN 6 - lavina (100000 porų), threads=24
+OK 6 - lavina
+[2025-09-30 13:41:17] RUN 7 - hiding
+OK 7 - hiding
+SUMMARY: OK
+========================================
+========================================
+TEST SESSION START @ 2025-09-30 13:49:37
+
+[COLLISIONS] 2025-09-30 13:49:40  NUM_PAIRS=100000 THREADS=24
+L=10, collisions=0, rate=0.000000%, compute_time=64ms, total_time=76ms
+L=100, collisions=0, rate=0.000000%, compute_time=126ms, total_time=210ms
+L=500, collisions=0, rate=0.000000%, compute_time=550ms, total_time=917ms
+L=1000, collisions=0, rate=0.000000%, compute_time=1001ms, total_time=1749ms
+TOTAL_TIME=3025ms, THREADS=24
+
+[AVALANCHE] 2025-09-30 13:49:44  NUM_PAIRS=100000 LEN=200 THREADS=24
+TIMING: data_gen=89ms, compute=285ms, total=375ms
+THROUGHPUT: 701754.4 hash/s
+bits%  min=0.000  max=60.156  avg=44.308
+hex%   min=0.000  max=96.094  avg=75.017
+
+[HIDING] 2025-09-30 13:49:44
+salt="salt1" -> XlH1IfSdwPLyZZzQ1mHrDNKJKOiXwvIkuJEJBo9vt3f65dhfFjqDZJ2XPm59BDkq
+salt="salt1" -> XlH1IfSdwPLyZZzQ1mHrDNKJKOiXwvIkuJEJBo9vt3f65dhfFjqDZJ2XPm59BDkq
+salt="salt2" -> 967yHkzNjyutSoTaZK7XozZhwvrC9V5FUylp5h2S8NerfbfpvYzJRHbVEA3umOXs
+salt="ilgesnis_saltas_123" -> EVqX0Juqfpx7eavePpVJmsAETqP6WKtLWuQtvXplYSlxEB89yBVxUayC2n7Byv0c
+salt="!" -> pIUHknzyD95KHcIM2tcEyhoBIyTahxpSkM7he8cuHhNPWL3ivuRURQONwQXi1Le6
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> T1mHGm37buJRTVZif7Z8DwvrGNwtHP2INic648j4aCax5osWmuohE3xduE22aqIE
+[2025-09-30 13:49:40] RUN 1 - išvedimo dydis
+OK 1 - išvedimo dydis
+[2025-09-30 13:49:40] RUN 2 - deterministiškumas
+OK 2 - deterministiškumas
+[2025-09-30 13:49:40] RUN 4 - efektyvumas
+OK 4 - efektyvumas (CSV parašytas)
+[2025-09-30 13:49:40] RUN 5 - kolizijos (100000 porų), threads=24
+OK 5 - kolizijos
+[2025-09-30 13:49:43] RUN 6 - lavina (100000 porų), threads=24
+OK 6 - lavina
+[2025-09-30 13:49:44] RUN 7 - hiding
+OK 7 - hiding
+SUMMARY: OK
+========================================

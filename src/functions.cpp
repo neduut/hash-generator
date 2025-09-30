@@ -131,36 +131,14 @@ string generate_hashe(const string& user_input) {
         // a) padalinu skaicius i blokus po 4 su pildymu modulo 64 nuo pradzios
         blocks_flat = split_into_blocks_pad4(state);
 
-        // b) apverciu bloku eile (po 4 elementus)
-        vector<std::array<int,4>> blocks;
-        blocks.reserve(blocks_flat.size() / 4);
-        for (size_t i = 0; i < blocks_flat.size(); i += 4) {
-            blocks.push_back(std::array<int,4>{
-                blocks_flat[i+0], blocks_flat[i+1], blocks_flat[i+2], blocks_flat[i+3]
-            });
-        }
-        std::reverse(blocks.begin(), blocks.end()); // apverciu bloku tvarka
-
-        blocks_flat.clear();
-        blocks_flat.reserve(blocks.size() * 4);
-        for (auto &b : blocks) { // d) vel sujungiu i viena masyva
-            blocks_flat.push_back(b[0]);
-            blocks_flat.push_back(b[1]);
-            blocks_flat.push_back(b[2]);
-            blocks_flat.push_back(b[3]);
-        }
-
-        // c) maisymas priklausomai nuo elemento reiksmes
+        // b) maisymas priklausomai nuo elemento reiksmes - efektyvus diffusion
         value_dependent_shuffle(blocks_flat);
 
-        // e) apverciu visa masyva
-        reverse_all(blocks_flat);
-
-        // f) padalinu masyva per puse ir sukeiciu dalis vietomis
-        swap_halves(blocks_flat);
-
-        // g) ASCII maisyma kur vienas elementas paveikia kitus 3
+        // c) ASCII maisyma kur vienas elementas paveikia kitus 3 - stipriausias efektas
         ascii_mixer(blocks_flat);
+
+        // d) padalinu masyva per puse ir sukeiciu dalis vietomis - finalus permutation
+        swap_halves(blocks_flat);
 
         // jei tuscia ivestis
         if (blocks_flat.empty()) {

@@ -52,6 +52,30 @@ Dabar tas pats elementas skirtingose vietose duos skirtingą reikšmę
 
 **IŠVADA:** daug reikšmės nedavė, labai minimaliai pagerėjo analanche ir efektyvumas kažkaip
 
+3) x5 - nepritaikiau
+
+Padariau penkiagūbą seed maišymo ciklą.
+Pabandžiau x2 ir kitokius skaičius.
+
+**IŠVADA:** avalanche tiek mažai pagerėjo, kad neapsimoka dėl to prarasti efektyvumo.
+
+3) Apvertimas - nepritaikiau
+
+Seed apvertimas po kiekvieno žingsnio.
+
+**IŠVADA:** efektas toks mažas, kad neapsimoka.
+
+### 2 užduotis: pertikrint algortimą
+
+Tikrinau algortimo efektyvumą išimant žingsnius. Tokiu būdų išėmiau nereikalingas vietas, kurios nepridėjo daug naudos, tokiu būdu algoritmas aiškesnis ir trumpesnis.
+
+Išėmiau: 
+b) apverciu bloku eile (po 4 elementus)
+d) vel sujungiu i viena masyva
+e) apverciu visa masyva
+
+**IŠVADA:** praradau tik 0.14% avalanche efekto, bet gavau +111% performance pagerinimą.
+
 ---
 
 ## Eksperimentinis tyrimas 
@@ -162,14 +186,15 @@ Visi rezultatai rašomi į **`analysis/`** katalogą.
 
 ## Atlikti darbai v0.12
 
-* ✅ **Patobulint seed maišymą** - x
+* ✅ **Patobulint seed maišymą** - minimaliai
+* ✅ **Pertikrinau algortimo žingsnius** - sutrumpinau išimant nereikšmingus žingsnius
 
 
 ## Tolimesni darbai 
 
-* **Pritaikyt OpenMP/OpenCL pagrindiniam algoritmui** - netinka dėl overhead
+* **Pritaikyt OpenMP/OpenCL pagrindiniam algoritmui** - kaži ar būtina
 * **Dar pagerint lavinos efektą** - jei sugalvosiu kažką protingo
-* **Pagerinti seed maišymą** - jei sugalvosiu kažką protingo
+* **Pagerinti seed maišymą**
 * **Palyginimas su egzistuojančiais hash generatoriais** - BONUS
 * **AI siūlomi patobulinimai** - bet tik versijoj v0.2
 
