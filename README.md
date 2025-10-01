@@ -312,25 +312,9 @@ Testams pritaikytas OpenMP su 24 gijomis (threads) maksimaliam našumui.
 
 ## 4) Efektyvumas
 
-**Principas.** Matuojame laiką didėjant įvesties dydžiui ir srautą (hash/s).
+**Principas.** Matuoju laiką didėjant įvesties dydžiui ir srautą (hash/s).
 
-**Nauja (2025‑10‑01):**
-
-```
-lines,avg_ms
-1,0.00
-2,0.00
-4,0.00
-8,0.00
-16,0.00
-32,0.00
-64,0.00
-128,0.40
-256,2.20
-512,5.80
-```
-
-**Srautas:** ~409,836 hash/s (iš [AVALANCHE] „THROUGHPUT").
+<img width="1480" height="880" alt="output3" src="https://github.com/user-attachments/assets/fdb851c2-aae8-49f4-96f4-9f78927ebd58" />
 
 **Komentaras.** Iki ~64 eilučių laikas praktiškai 0 ms; nuo 128–512 eilučių laikas auga nuspėjamai ir proporcingai. Srautas sumažėjo nuo ~738,007 iki ~409,836 hash/s (−44.5%), tačiau tai yra sąmoningas kompromisas dėl geresnių kriptografinių savybių:
 
@@ -343,7 +327,7 @@ lines,avg_ms
 
 ## 5) Kolizijų paieška
 
-**Principas.** Tikriname, ar skirtingos įvestys gali duoti identišką hash'ą.
+**Principas.** Tikrinu, ar skirtingos įvestys gali duoti identišką hash'ą.
 
 **Nauja (100,000 porų, 24 gijos):**
 
