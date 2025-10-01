@@ -88,7 +88,7 @@ namespace {
     }
 
     // ASCII masymas - kiekvienas elementas paveiks 3 kitus 
-    void ascii_mixer(vector<int>& blocks) {
+    void super3mixer(vector<int>& blocks) {
         if (blocks.empty()) return;
         vector<int> temp = blocks; // kopija, kad nepaveiktu vienas kito
         
@@ -160,7 +160,7 @@ string generate_hashe(const string& user_input) {
         swap_halves(blocks_flat);
 
         // g) ASCII maisyma kur vienas elementas paveikia kitus 3
-        ascii_mixer(blocks_flat);
+        super3mixer(blocks_flat);
 
         // jei tuscia ivestis
         if (blocks_flat.empty()) {
