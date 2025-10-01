@@ -36,36 +36,40 @@
 
 ## VERSIJA v0.12
 
+---
+
 ### 1 užduotis: patobulint seed maišymą
 
-1) Padariau vietoj sudėties daugybą
+**1) Padariau vietoj sudėties daugybą**
 
 **IŠVADA:** pagerėjo greitis :Dd? bet avanache nepakito
 
-2) Priklausomybė nuo elemento vietos
+**2) Priklausomybė nuo elemento vietos**
 
-i=0: (i+1) = 1 → elementas dauginamas iš 1
-i=1: (i+1) = 2 → elementas dauginamas iš 2
-i=2: (i+1) = 3 → elementas dauginamas iš 3
-i=50: (i+1) = 51 → elementas dauginamas iš 51
+* i=0: (i+1) = 1 → elementas dauginamas iš 1
+* i=1: (i+1) = 2 → elementas dauginamas iš 2
+* i=2: (i+1) = 3 → elementas dauginamas iš 3
+* i=50: (i+1) = 51 → elementas dauginamas iš 51
 Kad grįžtų į ribas padarau % 256
 
 Dabar tas pats elementas skirtingose vietose duos skirtingą reikšmę
 
 **IŠVADA:** daug reikšmės nedavė, labai minimaliai pagerėjo analanche ir efektyvumas kažkaip
 
-3) x5 - nepritaikiau
+**3) x5 - nepritaikiau**
 
 Padariau penkiagūbą seed maišymo ciklą.
 Pabandžiau x2 ir kitokius skaičius.
 
 **IŠVADA:** avalanche tiek mažai pagerėjo, kad neapsimoka dėl to prarasti efektyvumo.
 
-4) Apvertimas - nepritaikiau
+**4) Apvertimas - nepritaikiau**
 
 Seed apvertimas po kiekvieno žingsnio.
 
 **IŠVADA:** efektas toks mažas, kad neapsimoka.
+
+---
 
 ### 2 užduotis: pertikrint algortimą
 
@@ -78,6 +82,7 @@ e) apverčiu visą masyvą
 
 **IŠVADA:** praradau tik 0.14% avalanche efekto, bet gavau +111% performance pagerinimą.
 
+---
 
 ### 3 užduotis: įdėti kažką gal su matrica 
 
@@ -151,6 +156,8 @@ Nusprendžiau sugrįžti prie šitos idėjos ir pabandyti įdėti matricų daugy
 
 Įdėjau mini matricą daugybai.
 
+---
+
 ### 4 užduotis: jau sugeneruoto seed dar vienas permaišymas - nepritaikiau
 
 Kiekvienas iš 64 simbolių paveikia visus kitus 63:
@@ -164,7 +171,7 @@ Ir taip viska sukasi rastu per visus elementus išskyrus i, bet prieš keičiant
 
 ## Eksperimentinis tyrimas 
 
-Visi rezultatai rašomi į **`analysis/`** katalogą.
+Visi rezultatai rašomi į **`analysis/tests.report.txt`** failą.
 Testams pritaikytas OpenMP su 24 threads.
 
 ### 1) Išvedimo dydis (64 simboliai)
@@ -193,20 +200,10 @@ Testams pritaikytas OpenMP su 24 threads.
 
 **Eiga:** pasirenkamas didelis failas (`konstitucija.txt`), skaičiuojama su 1, 2, 4, 8, ... eilutėmis. Testas kartojamas kelis kartus, fiksuojamas vidutinis laikas.
 
-**Rezultatas:** laikai įrašomi į `analysis/perf.csv`:
+**Rezultatas:** laikai įrašomi į **`analysis/tests.report.txt`** failą.
 
-| Eilutės | Vidutinis laikas (ms) |
-|--------:|----------------------:|
-|       1 |                  0.00 |
-|       2 |                  0.00 |
-|       4 |                  0.00 |
-|       8 |                  0.00 |
-|      16 |                  0.00 |
-|      32 |                  0.00 |
-|      64 |                  0.00 |
-|     128 |                  0.00 |
-|     256 |                  1.20 |
-|     512 |                  3.20 |
+<img width="1580" height="980" alt="output" src="https://github.com/user-attachments/assets/aaf5adc7-7fb9-4cab-a9be-e377945ac04f" />
+
 
 **Komentaras:** algoritmas yra visai efektyvus.
 
@@ -287,9 +284,6 @@ Testams pritaikytas OpenMP su 24 threads.
 * **Palyginimas su MD5 į README**
 * **Pseudo kodas į README**
 * **Diagramos į README**
-* **Pritaikyt OpenMP/OpenCL pagrindiniam algoritmui** - kaži ar būtina
-* **Dar pagerint lavinos efektą** - jei sugalvosiu kažką protingo
-* **Pagerinti seed maišymą**
 * **AI siūlomi patobulinimai** - bet tik versijoj v0.2
 
 
@@ -301,4 +295,4 @@ Testams pritaikytas OpenMP su 24 threads.
 
 * **v0.11** – pritaikyti 4 algoritmo roundai, optimizavimo vėliavėlė pakeista iš O2 į O3,implementuotas OpenMP į testus, pridėti papildomi du maišymai, kurie priklauso nuo kiekvieno elemento vertės.
 
-* **v0.12** – seed generavimas su matrica kuri dauginama su gautais duomenim, patobulintas seed maišymas, optimizuotas hash generavimo algoritmas.
+* **v0.12** – įvairios eksperimentinės užduotys aprašytos `README.md`, seed generavimas su matrica kuri dauginama su gautais duomenim, patobulintas seed maišymas, optimizuotas hash generavimo algoritmas.
