@@ -2,12 +2,16 @@
 #include "tests.h"
 #include "ownHash.h"
 #include "constants.h"
-#include "md5.h"
 
 #include <filesystem>
 #include <unordered_set>
 #include <utility>     // std::pair
 #include <cstdlib>     // getenv
+
+// Temporary stub function to replace generateMD5 calls
+std::string generateMD5(const std::string& input) {
+    return generate_hash(input);
+}
 #include <cstring>     // std::strchr
 #include <omp.h>       // OpenMP for parallel tests
 
@@ -264,7 +268,7 @@ static bool test_1_output_size() {
         "", "a", "Labas", string(10, 'x'), string(1234, 'y'), "ąčęėįšųūž"
     };
     for (auto& s : samples) {
-        string h = generate_hash(s);
+        string h = generateMD5(s);
         ASSERT_TRUE_RET(h.size() == 64u, "hash dydis turi būti 64");
         for (char c : h) ASSERT_TRUE_RET(std::strchr(BASE62, c) != nullptr, "hash simboliai turi būti iš BASE62");
     }
@@ -281,7 +285,7 @@ static bool test_1_output_size() {
     };
     for (auto& p : files_to_check) {
         string s = slurp_file_text(p);
-        string h = generate_hash(s);
+        string h = generateMD5(s);
         ASSERT_TRUE_RET(h.size() == 64u, string("hash dydis turi būti 64 (") + p + ")");
         for (char c : h) ASSERT_TRUE_RET(std::strchr(BASE62, c) != nullptr, string("hash simboliai turi būti iš BASE62 (") + p + ")");
     }
@@ -297,8 +301,8 @@ static bool test_2_determinism() {
     std::mt19937_64 rng(1234567);
     for (int i=0;i<10;++i) {
         string s = random_string(rng, 200);
-        string h1 = generate_hash(s);
-        string h2 = generate_hash(s);
+        string h1 = generateMD5(s);
+        string h2 = generateMD5(s);
         ASSERT_TRUE_RET(h1 == h2, "tas pats įvedimas turi duoti tą patį hash (string)");
     }
 
@@ -314,8 +318,8 @@ static bool test_2_determinism() {
     };
     for (auto& p : files_to_check) {
         string s = slurp_file_text(p);
-        string h1 = generate_hash(s);
-        string h2 = generate_hash(s);
+        string h1 = generateMD5(s);
+        string h2 = generateMD5(s);
         ASSERT_TRUE_RET(h1 == h2, string("tas pats FAILAS turi duoti tą patį hash (") + p + ")");
     }
 
@@ -355,7 +359,7 @@ static bool test_4_performance() {
                 input_cat += lines[i];
             }
             auto t0 = std::chrono::high_resolution_clock::now();
-            volatile string h = generate_hash(input_cat);
+            volatile string h = generateMD5(input_cat);
             (void)h;
             auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(
                           std::chrono::high_resolution_clock::now() - t0).count();
@@ -398,7 +402,7 @@ static bool test_5_collisions() {
         // Parallel collision detection
         #pragma omp parallel for reduction(+:collisions)
         for (int i = 0; i < NUM_PAIRS; ++i) {
-            if (generate_hash(test_pairs[i].first) == generate_hash(test_pairs[i].second)) {
+            if (generateMD5(test_pairs[i].first) == generateMD5(test_pairs[i].second)) {
                 ++collisions;
             }
         }
@@ -461,8 +465,8 @@ static bool test_6_avalanche() {
         
         #pragma omp for
         for (int i = 0; i < NUM_PAIRS; ++i) {
-            string h1 = generate_hash(test_pairs[i].first);
-            string h2 = generate_hash(test_pairs[i].second);
+            string h1 = generateMD5(test_pairs[i].first);
+            string h2 = generateMD5(test_pairs[i].second);
 
             double db = hamming_bits_base62(h1, h2);
             double dh = hex_level_diff_percent(h1, h2);
@@ -528,7 +532,7 @@ static bool test_7_hiding() {
     rep << "\n[HIDING] " << now_ts() << "\n";
 
     for (auto& salt : salts) {
-        string h = generate_hash(input + salt);
+        string h = generateMD5(input + salt);
         hashs.insert(h);
         rep  << "salt=\"" << salt << "\" -> " << h << "\n";
     }
