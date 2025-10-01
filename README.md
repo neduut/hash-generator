@@ -1,14 +1,6 @@
 # Hash generatorius ## HASH'O GENERAVIMO EIGA 
 
-1. [Paverčiu string į ASCII kodus](#String-į-ASCII)
-2. [Keturi maišymų roundai:](#Keturi-maišymų-roundai)
-   2.1 [Sumaišau elementus priklausomai nuo jų vertės](#Maišymas,-priklausantis-nuo-vertės)
-   2.2 [Super maišymas (kievienas elementas paveikia kitus 3)](#"Trys-viename"-maišymas)
-   2.3 [Padalinu per pusę ir sukeičiu vietom](#Pusių-apvertimas)
-3. [Seed generavimas - matricos daugyba su įvestim](Seed-generavimas)
-4. [Salt generavimas ir integravimas](Salt-generavimas-ir-integravimas)
-5. [Maišymas su seed](#Maišymas-su-seed)
-6. [Pavertimas į base62](#Pavertimas-į-base62)TIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
+UŽDUOTIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
 
 ---
 
@@ -29,14 +21,15 @@
 
 ## HASH’O GENERAVIMO EIGA 
 
-1. [Paverčiu string į ASCII kodus](#String-į-ASCII)
-2. [Keturi maišymų roundai:](#Keturi-maišymų-roundai)
-   2.1 [Sumaišau elementus priklausomai nuo jų vertės](#Maišymas,-priklausantis-nuo-vertės)
-   2.2 [Super maišymas (kievienas elementas paveikia kitus 3)](#"Trys-viename"-maišymas)
-   2.3 [Padalinu per pusę ir sukeičiu vietom](#Pusių-apvertimas)
-3. [Seed generavimas - matricos daugyba su įvestim](Seed-generavimas)
-4. [Maišymas su seed](#Maišymas-su-seed)
-5. [Pavertimas į base62](#Pavertimas-į-base62)
+1. [Paverčiu string į ASCII kodus](#1-string-į-ascii)
+2. [Keturi maišymų roundai:](#2-keturi-maišymų-roundai)
+   - 2.1 [Sumaišau elementus priklausomai nuo jų vertės](#21-maišymas-priklausantis-nuo-vertės)
+   - 2.2 [Super maišymas (kievienas elementas paveikia kitus 3)](#22-trys-viename-maišymas)
+   - 2.3 [Padalinu per pusę ir sukeičiu vietom](#23-pusių-apvertimas)
+3. [Seed generavimas - matricos daugyba su įvestim](#3-seed-generavimas)
+4. [Salt generavimas ir integravimas](#4-salt-generavimas-ir-integravimas)
+5. [Maišymas su seed](#5-maišymas-su-seed)
+6. [Pavertimas į base62](#6-pavertimas-į-base62)
 
 ---
 
