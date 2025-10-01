@@ -413,25 +413,6 @@ salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> t3ZjbebAQmLfcs0OMZr9zP4gNpZGIW1d6hmjs
 
 ---
 
-## APTARIMAS
-
-### AI PATOBULINIMŲ SANTRAUKA
-
-**Vykdytos optimizacijos:**
-1. **Enhanced mixing funkcija** - pagerintas bitų maišymas su magic constants (0x9E3779B9)
-2. **Bit rotation** - naudojamas C++20 std::rotl greičiausiam bit rotation
-3. **Three-in-one mixer** - cascade efektas, kur kiekvienas elementas paveiks 3 kitus
-4. **Value-dependent shuffle** - dinaminis elementų maišymas pagal jų vertes
-5. **5-round processing** - papildomas apdirbimo raundas stabilumui
-
-**Pasiekti rezultatai:**
-- Lavinos efektas: nuo ~42.7% iki 47.632% (+11.5%)
-- Greitis sumažėjo: nuo 700 iki 409K hash/s
-- Kolizijos: 0% iš 100,000 testų
-- Deterministiškumas: 100%
-
----
-
 ## VERSIJOS
 
 * **v0.1** – pradinė versija su testais (ilgis, deterministiškumas, efektyvumas, kolizijos, lavina, hiding).
