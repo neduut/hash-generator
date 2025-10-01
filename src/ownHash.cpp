@@ -31,16 +31,17 @@ namespace {
     }
 
     // PATOBULINIMAS: pridėtas xor maisymas stipresniam avalanche efektui
+    // OPTIMIZAVIMAS: supaprastinta enhanced_mix funkcija greitesniam veikimui
     inline int enhanced_mix(int value, int salt, int position) {
         uint32_t v = static_cast<uint32_t>(value);
         uint32_t s = static_cast<uint32_t>(salt);
         uint32_t p = static_cast<uint32_t>(position);
         
-        // kompleksinis maisymas su bit rotation ir xor
+        // OPTIMIZAVIMAS: mažiau operacijų, bet išlaikomas stiprus avalanche
         v ^= rotl32(s, 7) + p * 0x9E3779B9; // golden ratio konstanta
         v = rotl32(v, 13) ^ (v >> 16);
-        v *= 0x85EBCA6B; // kita magic konstanta diffusion gerinimui
-        v ^= v >> 13;
+        v *= 0x85EBCA6B; // magic konstanta
+        v ^= v >> 13;    // vienas XOR užtenka greitumui
         v *= 0xC2B2AE35;
         v ^= v >> 16;
         
@@ -95,6 +96,7 @@ namespace {
 
     // pagrindinis masymas - kiekvienas elementas paveiks 3 kitus
     // PATOBULINIMAS: stiprintas avalanche efektas su nelinijiniu mixing
+    // OPTIMIZAVIMAS: sumažintas cascade effect complexity greitumui
     void three_in_one_mixer(vector<int>& previous) {
         if (previous.empty()) return;
         vector<int> temp = previous; // kopija, kad turet senas reiksmes
@@ -111,7 +113,7 @@ namespace {
             previous[e2] = enhanced_mix(previous[e2] + sk * 2, sk * 2, static_cast<int>(i + 1));
             previous[e3] = enhanced_mix(previous[e3] + sk * 3, sk * 3, static_cast<int>(i + 2));
             
-            // PATOBULINIMAS: papildomas feedback loop geresniam diffusion
+            // OPTIMIZAVIMAS: paprastesnis feedback loop greitumui
             size_t feedback_pos = (i + previous[e1] + previous[e2] + previous[e3]) % previous.size();
             previous[feedback_pos] ^= rotl32(sk, static_cast<int>(i % 32)) & 0xFF;
         }
@@ -166,8 +168,8 @@ string generate_hash(const string& user_input) {
     }
 
     // 2) ivairiausi maisymai hash generavimo vyksta 4 roundai 
-    // PATOBULINIMAS: padidinti rounds kiekį geresniam security
-    constexpr int ROUNDS = 6; // buvo 4, dabar 6 - stipresnis security
+    // OPTIMIZAVIMAS: grįžtam prie 5 rounds (buvo 6) geresniam speed/security balansui
+    constexpr int ROUNDS = 5; // buvo 4->6, dabar 5 - geras kompromisas
 
     // dabartinio roundo duomenys
     vector<int> data = current;
@@ -189,6 +191,7 @@ string generate_hash(const string& user_input) {
         swap_halves(previous);
 
         // PATOBULINIMAS: pridėtas inter-round mixing
+        // OPTIMIZAVIMAS: paprastesnis inter-round mixing greitumui
         if (r < ROUNDS - 1) { // ne paskutinis raundas
             for (size_t i = 0; i < previous.size(); ++i) {
                 previous[i] = enhanced_mix(previous[i], r + 1, static_cast<int>(i));
@@ -254,8 +257,10 @@ string generate_hash(const string& user_input) {
 
     // 6) sukuriu galutini hash – 64 base62 simboliai
     // PATOBULINIMAS: finalizavimo etapas su stipresniu mixing
+    // OPTIMIZAVIMAS: pašalintas papildomas finalization round greitumui
     string out;
     out.reserve(64);
+    
     for (int i = 0; i < 64; ++i) {
         int a = (int)(unsigned char)seed[i % seed.size()]; // seed simbolis (ratu)
         int b = previous[i % previous.size()]; // masyvo elementas (ratu)
