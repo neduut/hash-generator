@@ -57,8 +57,8 @@ void run_hash_flow() {
     while (true) {
         try {
             string user_input = readinput();
-            string hashe = generate_hashe(user_input);
-            cout << "Sugeneruotas 64 simbolių hash: " << hashe << endl;
+            string hash = generate_hash(user_input);
+            cout << "Sugeneruotas 64 simbolių hash: " << hash << endl;
         } catch (const exception& e) {
             cerr << e.what() << endl;
             cout << TRY_AGAIN_ << endl;

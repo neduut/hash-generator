@@ -16,41 +16,18 @@ using std::cerr;
 
 namespace {
     // pavercia sveika skaiciu i base62 simboli
-    inline char to_base62(int v) {
-        v %= 62;
-        if (v < 0) v += 62;
-        return BASE62[v];
-    }
-
-    // padalina i blokus po 4 elementus
-    // jei paskutinis blokas trumpesnis – pildom modulo 64 ziurint nuo pradzios
-    // trukstamus elementus ima is pradinio masyvo su indeksu % min(64, n)
-    vector<int> split_into_blocks_pad4(const vector<int>& nums) {
-        vector<int> out;
-        out.reserve(((nums.size() + 3) / 4) * 4);
-
-        const size_t n = nums.size();
-        const size_t pad_domain = std::min<size_t>(64, n == 0 ? 1 : n);
-
-        for (size_t i = 0; i < n; i += 4) {
-            size_t rem = std::min<size_t>(4, n - i);
-            for (size_t k = 0; k < rem; ++k) out.push_back(nums[i + k]);
-            if (rem < 4) {
-                for (size_t k = rem; k < 4; ++k) {
-                    size_t idx = (k - rem) % pad_domain;
-                    out.push_back(n == 0 ? 0 : nums[idx]);
-                }
-            }
-        }
-        return out;
+    inline char to_base62(int sk) {
+        sk %= 62;
+        if (sk < 0) sk += 62;
+        return BASE62[sk];
     }
 
     // elementai maisomi priklausomai nuo ju vertes
-    void value_dependent_shuffle(vector<int>& flat_blocks) {
-        if (flat_blocks.empty()) return;
+    void value_dependent_shuffle(vector<int>& previous) {
+        if (previous.empty()) return;
         
-        vector<int> temp = flat_blocks; // kopija
-        const size_t n = flat_blocks.size();
+        vector<int> temp = previous; // kopija
+        const size_t n = previous.size();
         
         for (size_t i = 0; i < n; ++i) {
             int value = temp[i];
@@ -64,57 +41,49 @@ namespace {
                 new_pos = (i + n - (jump % n)) % n;  // apsauga nuo underflow
             }
             
-            flat_blocks[new_pos] = value;
+            previous[new_pos] = value;
         }
     }
 
-    // apvercia visa masyva 
-    template <class T>
-    void reverse_all(vector<T>& v) {
-        std::reverse(v.begin(), v.end());
-    }
-
     // padalina per puse ir sukeicia vietomis
-    template <class T>
-    void swap_halves(vector<T>& v) {
-        size_t n = v.size();
-        size_t h = n / 2;
-        // jei n nelyginis – antroji puse bus +1 elementu ilgesne; sukeiciam segmentais
-        vector<T> first(v.begin(), v.begin() + h);
-        vector<T> second(v.begin() + h, v.end());
-        v.clear();
-        v.insert(v.end(), second.begin(), second.end());
-        v.insert(v.end(), first.begin(), first.end());
+    void swap_halves(vector<int>& previous) {
+        size_t n = previous.size();
+        size_t h = n / 2; // antroji pusė bus ilgesnė jei nelyginis dydis
+        vector<int> first(previous.begin(), previous.begin() + h);
+        vector<int> second(previous.begin() + h, previous.end());
+        previous.clear();
+        previous.insert(previous.end(), second.begin(), second.end());
+        previous.insert(previous.end(), first.begin(), first.end());
     }
 
-    // pagrindinis masymas - kiekvienas elementas paveiks 3 kitus 
-    void super3mixer(vector<int>& blocks) {
-        if (blocks.empty()) return;
-        vector<int> temp = blocks; // kopija, kad nepaveiktu vienas kito
+    // pagrindinis masymas - kiekvienas elementas paveiks 3 kitus
+    void three_in_one_mixer(vector<int>& previous) {
+        if (previous.empty()) return;
+        vector<int> temp = previous; // kopija, kad turet senas reiksmes
         
         for (size_t i = 0; i < temp.size(); ++i) {
             int sk = temp[i];
 
-            size_t e1 = (i + sk) % blocks.size();
-            size_t e2 = (i + sk * 2) % blocks.size();
-            size_t e3 = (i + sk * 3) % blocks.size();
+            size_t e1 = (i + sk) % previous.size();
+            size_t e2 = (i + sk * 2) % previous.size();
+            size_t e3 = (i + sk * 3) % previous.size();
 
             // grazinu i 0-255 intervala
-            blocks[e1] = (blocks[e1] + sk) % 256;
-            blocks[e2] = (blocks[e2] + sk * 2) % 256;
-            blocks[e3] = (blocks[e3] + sk * 3) % 256;
+            previous[e1] = (previous[e1] + sk) % 256;
+            previous[e2] = (previous[e2] + sk * 2) % 256;
+            previous[e3] = (previous[e3] + sk * 3) % 256;
         }
     }
 
     // generuoju seed priklausomai nuo input simboliu
-    string generate_seed_from_input(const vector<int>& ascii_vals) {
+    string generate_seed(const vector<int>& current) {
         string seed = "Kx9mN3vL8qR5wY1pZ7jT2bF6hC4nA0sD";
         
         int matrix[2][2] = {{7, 13}, {11, 5}};
         
-        for (size_t i = 0; i + 1 < ascii_vals.size(); i += 2) {
-            int a = ascii_vals[i];
-            int b = ascii_vals[i + 1];
+        for (size_t i = 0; i + 1 < current.size(); i += 2) {
+            int a = current[i];
+            int b = current[i + 1];
             
             size_t pos1 = i % seed.size();
             size_t pos2 = (i + 1) % seed.size();
@@ -124,10 +93,10 @@ namespace {
         }
         
         // jei liko vienas elementas nelyginiame masyve
-        if (ascii_vals.size() % 2 == 1) {
-            size_t last_idx = ascii_vals.size() - 1;
+        if (current.size() % 2 == 1) {
+            size_t last_idx = current.size() - 1;
             size_t pos = last_idx % seed.size();
-            seed[pos] = BASE62[(ascii_vals[last_idx] * 17 + pos * 23) % 62];
+            seed[pos] = BASE62[(current[last_idx] * 17 + pos * 23) % 62];
         }
         
         return seed;
@@ -135,64 +104,86 @@ namespace {
 
 } // namespace
 
-string generate_hashe(const string& user_input) {
+string generate_hash(const string& user_input) {
     // 1) kiekviena simboli paverciu i ascii koda
-    vector<int> ascii_vals;
-    ascii_vals.reserve(user_input.size());
-    for (unsigned char c : user_input) ascii_vals.push_back((int)c);
+    vector<int> current;
+    current.reserve(user_input.size());
+    for (unsigned char c : user_input) current.push_back((int)c);
 
-    // jiei ivestis tuscia vistiek generuoju hash viska uzpildant nuliais
-    if (ascii_vals.empty()) {
-        ascii_vals.push_back(0);
+    // jei ivestis tuscia, pridedu nuli kad hash vis tiek butu sugeneruotas
+    if (current.empty()) {
+        current.push_back(0);
     }
 
     // 2) ivairiausi maisymai hash generavimo vyksta 4 roundai 
     constexpr int ROUNDS = 4;
 
     // dabartinio roundo duomenys
-    vector<int> state = ascii_vals;
+    vector<int> data = current;
 
     // paskutinio raundo duomenu kopija
-    vector<int> blocks_flat;
+    vector<int> previous;
 
     for (int r = 0; r < ROUNDS; ++r) {
-        // a) padalinu skaicius i blokus po 4 su pildymu modulo 64 nuo pradzios
-        blocks_flat = split_into_blocks_pad4(state);
+        // a) naudojam originalius duomenis be papildomo padding
+        previous = data;
 
         // b) maisymas priklausomai nuo elemento reiksmes - efektyvus diffusion
-        value_dependent_shuffle(blocks_flat);
+        value_dependent_shuffle(previous);
 
         // c) maisymas kur vienas elementas paveikia kitus 3 - stipriausias efektas
-        super3mixer(blocks_flat);
+        three_in_one_mixer(previous);
 
         // d) padalinu masyva per puse ir sukeiciu dalis vietomis - finalus permutation
-        swap_halves(blocks_flat);
+        swap_halves(previous);
 
         // jei tuscia ivestis
-        if (blocks_flat.empty()) {
-            blocks_flat.push_back(0);
+        if (previous.empty()) {
+            previous.push_back(0);
         }
 
         // kitas raundas naudos dabartini masyva
-        state = blocks_flat;
+        data = previous;
     }
 
     // 3) generuoju seed priklausomai nuo input simboliu
-    string seed = generate_seed_from_input(ascii_vals);
+    string seed = generate_seed(current);
+    
+    // 4) salt generavimas ir integravimas
+    string salt;
+    if (!current.empty()) {
+        // salt generuojamas is input charakteristiku
+        size_t input_sum = 0;
+        for (int ascii : current) input_sum += ascii;
+        
+        // generuoju 4 simboliu salt priklausomai nuo input
+        for (int i = 0; i < 4; ++i) {
+            int salt_62 = (input_sum * (i + 7) + current[i % current.size()] * 13) % 62;
+            salt += to_base62(salt_62);
+        }
+        
+        // integruoju salt i seed
+        for (size_t i = 0; i < salt.size(); ++i) {
+            int salt_ascii = (int)(unsigned char)salt[i];
+            size_t salt_pos = (input_sum + i * salt_ascii) % seed.size();
+            int seed_62 = (seed[salt_pos] + salt_ascii + input_sum) % 62;
+            seed[salt_pos] = to_base62(seed_62);
+        }
+    }
 
-    // 4) maisymas su seed 
-    for (size_t i = 0; i < blocks_flat.size(); ++i) {
+    // 5) maisymas su seed 
+    for (size_t i = 0; i < previous.size(); ++i) {
         size_t si = i % seed.size(); // seed indeksa sukame ratu
-        int rez = ((int)(unsigned char)seed[si] * blocks_flat[i] * (i + 1)) % 256; // daugyba + pozicijos poveikis + mod 256
+        int rez = ((int)(unsigned char)seed[si] * previous[i] * (i + 1)) % 256; // daugyba + pozicijos poveikis + mod 256
         seed[si] = to_base62(rez % 62); // mod 62 kad griztu i base62 simboli
     }
 
-    // 5-6) sukuriu galutini hash – 64 base62 simboliai
+    // 6) sukuriu galutini hash – 64 base62 simboliai
     string out;
     out.reserve(64);
     for (int i = 0; i < 64; ++i) {
         int a = (int)(unsigned char)seed[i % seed.size()]; // seed simbolis (ratu)
-        int b = blocks_flat[i % blocks_flat.size()]; // masyvo elementas (ratu)
+        int b = previous[i % previous.size()]; // masyvo elementas (ratu)
         int v = (a + b + i * 17) % 62; // pozicijos itaka ir mod 62
         out.push_back(to_base62(v));
     }

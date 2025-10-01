@@ -1987,3 +1987,113 @@ OK 7 - hiding
 OK hiding (0ms)
 SUMMARY: OK
 ========================================
+========================================
+TEST SESSION START @ 2025-10-01 13:47:59
+[PERFORMANCE] 2025-10-01 13:48:02
+lines,avg_ms
+1,0.00
+2,0.00
+4,0.00
+8,0.00
+16,0.00
+32,0.00
+64,0.00
+128,0.00
+256,1.00
+512,2.20
+
+[COLLISIONS] 2025-10-01 13:48:02  NUM_PAIRS=100000 THREADS=24
+L=10, collisions=0, rate=0.000000%, compute_time=49ms, total_time=59ms
+L=100, collisions=0, rate=0.000000%, compute_time=186ms, total_time=265ms
+L=500, collisions=0, rate=0.000000%, compute_time=756ms, total_time=1156ms
+L=1000, collisions=0, rate=0.000000%, compute_time=1224ms, total_time=2065ms
+TOTAL_TIME=3629ms, THREADS=24
+
+[AVALANCHE] 2025-10-01 13:48:06  NUM_PAIRS=100000 LEN=200 THREADS=24
+TIMING: data_gen=112ms, compute=253ms, total=366ms
+THROUGHPUT: 790513.8 hash/s
+bits%  min=0.000  max=60.677  avg=44.330
+hex%   min=0.000  max=95.312  avg=75.027
+
+[HIDING] 2025-10-01 13:48:06
+salt="salt1" -> NqB3fhArZVLwl77UQ8HJA3ffN2iwDabqkOyL8qRJW9f4rlPju5qVWZxtSA5IIiNw
+salt="salt1" -> NqB3fhArZVLwl77UQ8HJA3ffN2iwDabqkOyL8qRJW9f4rlPju5qVWZxtSA5IIiNw
+salt="salt2" -> doUmn2zeyk66oXvaV5pyK2LoZlWGLRpJYQ8dLZ2jnzQ4LKRprjRkdaX27qyyYKhw
+salt="ilgesnis_saltas_123" -> z3Qr3gNfJ7QxOSOFWmUaR1CH55E5y8JeraiGp30tdbm0mK9d5WiSkWCXsDJAdQBG
+salt="!" -> pqSHmHItEpshJcmSA9cNlFX5khSXNhfYku5hgslpIxamYLHo3aR3Eenh8zW5xv4c
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> jNOkgCE8eOAOAYOTeFdPROP5bfGD7gy7GBVXwqLeeml51w8rhGojU4mfDt7ZatEO
+[2025-10-01 13:48:02] RUN 1 - išvedimo dydis
+OK 1 - išvedimo dydis
+OK išvedimo dydis (2ms)
+[2025-10-01 13:48:02] RUN 2 - deterministiškumas
+OK 2 - deterministiškumas
+OK deterministiškumas (2ms)
+[2025-10-01 13:48:02] RUN 4 - efektyvumas
+OK 4 - efektyvumas
+OK efektyvumas (29ms)
+[2025-10-01 13:48:02] RUN 5 - kolizijos (100000 porų), threads=24
+OK 5 - kolizijos
+OK kolizijos (3630ms)
+[2025-10-01 13:48:06] RUN 6 - lavina (100000 porų), threads=24
+OK 6 - lavina
+OK lavinos efektas (381ms)
+[2025-10-01 13:48:06] RUN 7 - hiding
+OK 7 - hiding
+OK hiding (0ms)
+SUMMARY: OK
+========================================
+========================================
+TEST SESSION START @ 2025-10-01 14:57:31
+[PERFORMANCE] 2025-10-01 14:57:34
+lines,avg_ms
+1,0.00
+2,0.00
+4,0.00
+8,0.00
+16,0.00
+32,0.00
+64,0.00
+128,0.00
+256,1.00
+512,2.80
+
+[COLLISIONS] 2025-10-01 14:57:34  NUM_PAIRS=100000 THREADS=24
+L=10, collisions=0, rate=0.000000%, compute_time=58ms, total_time=67ms
+L=100, collisions=0, rate=0.000000%, compute_time=159ms, total_time=238ms
+L=500, collisions=0, rate=0.000000%, compute_time=561ms, total_time=935ms
+L=1000, collisions=0, rate=0.000000%, compute_time=1095ms, total_time=1876ms
+TOTAL_TIME=3187ms, THREADS=24
+
+[AVALANCHE] 2025-10-01 14:57:37  NUM_PAIRS=100000 LEN=200 THREADS=24
+TIMING: data_gen=92ms, compute=271ms, total=363ms
+THROUGHPUT: 738007.4 hash/s
+bits%  min=0.000  max=61.458  avg=45.194
+hex%   min=0.000  max=96.094  avg=76.546
+
+[HIDING] 2025-10-01 14:57:37
+salt="salt1" -> NqB3fhArZ4Lwl77U1EHJA3ffN2iwgabqkOyL8qRJWif4rlPjFBqVWZxtSA5IliNw
+salt="salt1" -> NqB3fhArZ4Lwl77U1EHJA3ffN2iwgabqkOyL8qRJWif4rlPjFBqVWZxtSA5IliNw
+salt="salt2" -> doUCn2zeqk66oXvaV5pyK2LoZlWGLxpJYQ8tLZ2jfzQ4LKRprjRkdaX27qyyYqhw
+salt="ilgesnis_saltas_123" -> z3Qr3gNfJ7QxOSOFWcUaR1CT55E548JeraiGp30tdbm0mK9d5MiSkWC9sDJAJQBG
+salt="!" -> pqSHuHDtEpshJcmSA9cNlFXP7hSXNhfYku5hosgpIxamYLHo3aR3Een1VzW5xv4c
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> jNO6gCE8eaAOAYOTeFdPROP5bfGD7gK7GBVJwqLeeIl51w8rhGojU4mfDt7ZatQO
+[2025-10-01 14:57:34] RUN 1 - išvedimo dydis
+OK 1 - išvedimo dydis
+OK išvedimo dydis (2ms)
+[2025-10-01 14:57:34] RUN 2 - deterministiškumas
+OK 2 - deterministiškumas
+OK deterministiškumas (2ms)
+[2025-10-01 14:57:34] RUN 4 - efektyvumas
+OK 4 - efektyvumas
+OK efektyvumas (29ms)
+[2025-10-01 14:57:34] RUN 5 - kolizijos (100000 porų), threads=24
+OK 5 - kolizijos
+OK kolizijos (3188ms)
+[2025-10-01 14:57:37] RUN 6 - lavina (100000 porų), threads=24
+OK 6 - lavina
+OK lavinos efektas (379ms)
+[2025-10-01 14:57:37] RUN 7 - hiding
+OK 7 - hiding
+OK hiding (1ms)
+SUMMARY: OK
+========================================

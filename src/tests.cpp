@@ -264,7 +264,7 @@ static bool test_1_output_size() {
         "", "a", "Labas", string(10, 'x'), string(1234, 'y'), "ąčęėįšųūž"
     };
     for (auto& s : samples) {
-        string h = generate_hashe(s);
+        string h = generate_hash(s);
         ASSERT_TRUE_RET(h.size() == 64u, "hash dydis turi būti 64");
         for (char c : h) ASSERT_TRUE_RET(std::strchr(BASE62, c) != nullptr, "hash simboliai turi būti iš BASE62");
     }
@@ -281,7 +281,7 @@ static bool test_1_output_size() {
     };
     for (auto& p : files_to_check) {
         string s = slurp_file_text(p);
-        string h = generate_hashe(s);
+        string h = generate_hash(s);
         ASSERT_TRUE_RET(h.size() == 64u, string("hash dydis turi būti 64 (") + p + ")");
         for (char c : h) ASSERT_TRUE_RET(std::strchr(BASE62, c) != nullptr, string("hash simboliai turi būti iš BASE62 (") + p + ")");
     }
@@ -297,8 +297,8 @@ static bool test_2_determinism() {
     std::mt19937_64 rng(1234567);
     for (int i=0;i<10;++i) {
         string s = random_string(rng, 200);
-        string h1 = generate_hashe(s);
-        string h2 = generate_hashe(s);
+        string h1 = generate_hash(s);
+        string h2 = generate_hash(s);
         ASSERT_TRUE_RET(h1 == h2, "tas pats įvedimas turi duoti tą patį hash (string)");
     }
 
@@ -314,8 +314,8 @@ static bool test_2_determinism() {
     };
     for (auto& p : files_to_check) {
         string s = slurp_file_text(p);
-        string h1 = generate_hashe(s);
-        string h2 = generate_hashe(s);
+        string h1 = generate_hash(s);
+        string h2 = generate_hash(s);
         ASSERT_TRUE_RET(h1 == h2, string("tas pats FAILAS turi duoti tą patį hash (") + p + ")");
     }
 
@@ -355,7 +355,7 @@ static bool test_4_performance() {
                 input_cat += lines[i];
             }
             auto t0 = std::chrono::high_resolution_clock::now();
-            volatile string h = generate_hashe(input_cat);
+            volatile string h = generate_hash(input_cat);
             (void)h;
             auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(
                           std::chrono::high_resolution_clock::now() - t0).count();
@@ -398,7 +398,7 @@ static bool test_5_collisions() {
         // Parallel collision detection
         #pragma omp parallel for reduction(+:collisions)
         for (int i = 0; i < NUM_PAIRS; ++i) {
-            if (generate_hashe(test_pairs[i].first) == generate_hashe(test_pairs[i].second)) {
+            if (generate_hash(test_pairs[i].first) == generate_hash(test_pairs[i].second)) {
                 ++collisions;
             }
         }
@@ -461,8 +461,8 @@ static bool test_6_avalanche() {
         
         #pragma omp for
         for (int i = 0; i < NUM_PAIRS; ++i) {
-            string h1 = generate_hashe(test_pairs[i].first);
-            string h2 = generate_hashe(test_pairs[i].second);
+            string h1 = generate_hash(test_pairs[i].first);
+            string h2 = generate_hash(test_pairs[i].second);
 
             double db = hamming_bits_base62(h1, h2);
             double dh = hex_level_diff_percent(h1, h2);
@@ -522,17 +522,17 @@ static bool test_7_hiding() {
         "salt1", "salt1", "salt2", "ilgesnis_saltas_123", "!" , string(32,'X')
     };
 
-    std::unordered_set<string> hashes;
+    std::unordered_set<string> hashs;
     ensure_analysis_dir();
     ofstream rep(REPORT_PATH(), std::ios::app);
     rep << "\n[HIDING] " << now_ts() << "\n";
 
     for (auto& salt : salts) {
-        string h = generate_hashe(input + salt);
-        hashes.insert(h);
+        string h = generate_hash(input + salt);
+        hashs.insert(h);
         rep  << "salt=\"" << salt << "\" -> " << h << "\n";
     }
-    bool ok = (hashes.size() == size_t(5)); // 5 unikalūs (nes "salt1" du kartus)
+    bool ok = (hashs.size() == size_t(5)); // 5 unikalūs (nes "salt1" du kartus)
     if (!ok) {
         ui::print_fail("hiding testas", "tikėtasi 5 unikalių hash'ų", 0);
         if (g_log) (*g_log) << "FAIL 7 - hiding\n";

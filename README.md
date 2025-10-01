@@ -1,6 +1,14 @@
-# Hash generatorius 
+# Hash generatorius ## HASH'O GENERAVIMO EIGA 
 
-**UŽDUOTIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
+1. [Paverčiu string į ASCII kodus](#String-į-ASCII)
+2. [Keturi maišymų roundai:](#Keturi-maišymų-roundai)
+   2.1 [Sumaišau elementus priklausomai nuo jų vertės](#Maišymas,-priklausantis-nuo-vertės)
+   2.2 [Super maišymas (kievienas elementas paveikia kitus 3)](#"Trys-viename"-maišymas)
+   2.3 [Padalinu per pusę ir sukeičiu vietom](#Pusių-apvertimas)
+3. [Seed generavimas - matricos daugyba su įvestim](Seed-generavimas)
+4. [Salt generavimas ir integravimas](Salt-generavimas-ir-integravimas)
+5. [Maišymas su seed](#Maišymas-su-seed)
+6. [Pavertimas į base62](#Pavertimas-į-base62)TIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
 
 ---
 
@@ -19,157 +27,181 @@
 
 ---
 
-## HASH’O GENERAVIMO EIGA (v0.12)
+## HASH’O GENERAVIMO EIGA 
 
-1. ASCII → kodai
-2. Kartojimas 4 roundus:
-   a) Blokavimas (po 4, papildymas)
-   b) Sumaišau elementus priklausomai nuo jų vertės
-   c) Super maišymas (kievienas el. paveikia kitus 3)
-   d) padalinu per pusę ir sukeičiu vietom
-3. Seed generavimas - matricos daugyba su įvestim
-4. Maišymas su seed
-5. Base62 kodavimas
-6. 64 simbolių rezultatas
+1. [Paverčiu string į ASCII kodus](#String-į-ASCII)
+2. [Keturi maišymų roundai:](#Keturi-maišymų-roundai)
+   2.1 [Sumaišau elementus priklausomai nuo jų vertės](#Maišymas,-priklausantis-nuo-vertės)
+   2.2 [Super maišymas (kievienas elementas paveikia kitus 3)](#"Trys-viename"-maišymas)
+   2.3 [Padalinu per pusę ir sukeičiu vietom](#Pusių-apvertimas)
+3. [Seed generavimas - matricos daugyba su įvestim](Seed-generavimas)
+4. [Maišymas su seed](#Maišymas-su-seed)
+5. [Pavertimas į base62](#Pavertimas-į-base62)
 
 ---
 
-## VERSIJA v0.12
+## PSEUDO KODAS
 
----
-
-### 1 užduotis: patobulint seed maišymą
-
-**1) Padariau vietoj sudėties daugybą**
-
-**IŠVADA:** pagerėjo greitis :Dd? bet avanache nepakito
-
-**2) Priklausomybė nuo elemento vietos**
-
-* i=0: (i+1) = 1 → elementas dauginamas iš 1
-* i=1: (i+1) = 2 → elementas dauginamas iš 2
-* i=2: (i+1) = 3 → elementas dauginamas iš 3
-* i=50: (i+1) = 51 → elementas dauginamas iš 51
-Kad grįžtų į ribas padarau % 256
-
-Dabar tas pats elementas skirtingose vietose duos skirtingą reikšmę
-
-**IŠVADA:** daug reikšmės nedavė, labai minimaliai pagerėjo analanche ir efektyvumas kažkaip
-
-**3) x5 - nepritaikiau**
-
-Padariau penkiagūbą seed maišymo ciklą.
-Pabandžiau x2 ir kitokius skaičius.
-
-**IŠVADA:** avalanche tiek mažai pagerėjo, kad neapsimoka dėl to prarasti efektyvumo.
-
-**4) Apvertimas - nepritaikiau**
-
-Seed apvertimas po kiekvieno žingsnio.
-
-**IŠVADA:** efektas toks mažas, kad neapsimoka.
-
----
-
-### 2 užduotis: pertikrint algortimą
-
-Tikrinau algortimo efektyvumą išimant žingsnius. Tokiu būdų išėmiau nereikalingas vietas, kurios nepridėjo daug naudos, tokiu būdu algoritmas aiškesnis ir trumpesnis.
-
-Išėmiau: 
-b) apverčiu blokų eilę (po 4 elementus)
-d) vėl sujungiu į vieną masyvą
-e) apverčiu visą masyvą
-
-**IŠVADA:** praradau tik 0.14% avalanche efekto, bet gavau +111% performance pagerinimą.
-
----
-
-### 3 užduotis: įdėti kažką gal su matrica 
-
-Įdėjau daugyba su 4x4 matrica kaip papildomą žingsnį kur vyksta 4 roundai.
-Gal reiktų įdėt OpenMP į tai? Reik pabandyt.
-
-```cpp
-int matrix[4][4] = {
-    {7, 13, 5, 11},
-    {9, 3, 17, 6},
-    {4, 15, 8, 12},
-    {14, 2, 10, 16}
-};
+### 1. String į ASCII
+```
+FUNKCIJA generate_hash(user_input):
+    current = tuščias_masyvas
+    
+    UŽ kiekvieną simbolį c IŠ user_input:
+        pridėti ASCII(c) į current
+    
+    JEI current yra tuščias:
+        pridėti 0 į current  // apsauga nuo tuščios įvesties
 ```
 
-**Algoritmas:**
-1. Imami 4 elementus iš masyvo 
-2. Atliekama matricos daugyba:
-   - naujas[0] = (7*a + 13*b + 5*c + 11*d) % 256
-   - naujas[1] = (9*a + 3*b + 17*c + 6*d) % 256  
-   - naujas[2] = (4*a + 15*b + 8*c + 12*d) % 256
-   - naujas[3] = (14*a + 2*b + 10*c + 16*d) % 256
-3. Jei lieka elementų mažiau nei 4, jie maišomi paprastai: `(elementas * 19 + pirmas_elementas * 23) % 256`
-
-**IŠVADA:** su 4x4 avalanche nepagerėjo, reik pabandyt su didesne.
-
-Bandysim su 1000x1000 matrica :Dd čia jau tikrai reikės OpenMP.
-Teko padaryt ribojimą, kad matricos dydis max toks kiek elementų masyve, bet ir maksimalus matricos dydis būtų 1000x1000, kad nesprogtų kompas jei būtų labai didelė įvestis, todėl deja jei masyvo dydis >1000, tai likę elementai bus maišomi paprastai. (Čia būtų galima vėliau pasidomėt kaip išspręst šitą reikalą)
-Taigi, matricos dydis prisitaiko prie duomenų.
-
-Matricos parametras
-```cpp
-size_t n = std::min(blocks.size(), (size_t)1000);
+### 2. Keturi maišymų roundai
 ```
-Matricos daugyba su OpenMP
-```cpp
-#pragma omp parallel for schedule(dynamic)
-  for (size_t i = 0; i < n; ++i) {
-      int sum = 0;
-      for (size_t j = 0; j < n; ++j) {
-      if (j < temp.size()) {
-        sum += matrix[i][j] * temp[j];
-        }
-      }
-      if (i < blocks.size()) {
-        blocks[i] = sum % 256;
-      }
-  }
+    ROUNDS = 4
+    data = current  // kopija originalių duomenų
+    
+    UŽ r NUO 0 IKI ROUNDS:
+        previous = data  // dabartinio round'o duomenys
+        
+        // Round'o žingsniai:
+        value_dependent_shuffle(previous)  // 2.1
+        three_in_one_mixer(previous)       // 2.2  
+        swap_halves(previous)              // 2.3
+        
+        data = previous  // kitas round'as naudos šiuos duomenis
 ```
 
-**IŠVADA:** Nu man rodos čia reiktų OpenCL net ne OpenMP :Ddd šia kartui šią gražią 1000x1000 matricą išimsim. 
+### 2.1 Maišymas, priklausantis nuo vertės
+```
+FUNKCIJA value_dependent_shuffle(previous):
+    temp = previous  // kopija, kad nesugadinti originalius
+    n = previous.size()
+    
+    UŽ i NUO 0 IKI n:
+        value = temp[i]
+        
+        JEI value yra lyginis:
+            jump = (17 * |value| * 7 + i * 23) % n
+            new_pos = (i + jump) % n        // šoka į priekį
+        KITAIP:
+            jump = (13 * |value| * 11 + i * 19) % n  
+            new_pos = (i + n - jump) % n    // šoka atgal
+        
+        previous[new_pos] = value  // perkelia elementą
+```
 
-Bet nusprendžiau dar pabandyt su 10X1O matrica.
+### 2.2 "Trys viename" maišymas
+```
+FUNKCIJA three_in_one_mixer(previous):
+    temp = previous  // kopija originalių verčių
+    
+    UŽ i NUO 0 IKI temp.size():
+        sk = temp[i]
+        
+        // Vienas elementas paveiks tris kitus:
+        e1 = (i + sk) % previous.size()
+        e2 = (i + sk * 2) % previous.size()  
+        e3 = (i + sk * 3) % previous.size()
+        
+        // Modifikuoja tris pozicijas:
+        previous[e1] = (previous[e1] + sk) % 256
+        previous[e2] = (previous[e2] + sk * 2) % 256
+        previous[e3] = (previous[e3] + sk * 3) % 256
+```
 
-**IŠVADA:** greitis visiškai susigadino. 
+### 2.3 Pusių apvertimas
+```
+FUNKCIJA swap_halves(previous):
+    n = previous.size()
+    h = n / 2  // integer division: 5/2=2
+    
+    first = previous[0...h-1]      // pirma pusė
+    second = previous[h...n-1]     // antra pusė
+    
+    previous = second + first      // sukeičia vietomis
+    // Pvz: [A,B,C,D,E] -> [C,D,E,A,B]
+```
 
-Bandau dar 3x3 matricą.
+### 3. Seed generavimas
+```
+FUNKCIJA generate_seed(current):
+    seed = "Kx9mN3vL8qR5wY1pZ7jT2bF6hC4nA0sD"  // bazinis seed
+    matrix = [[7, 13], [11, 5]]  // 2x2 transformacijos matrica
+    
+    // Porinis apdorojimas su matrica:
+    UŽ i NUO 0 IKI current.size() ŽINGSNIU 2:
+        JEI i+1 < current.size():
+            a = current[i]
+            b = current[i+1]
+            
+            pos1 = i % seed.size()
+            pos2 = (i+1) % seed.size()
+            
+            // Matricos daugyba ir base62 konvertavimas:
+            seed[pos1] = BASE62[(matrix[0][0]*a + matrix[0][1]*b) % 62]
+            seed[pos2] = BASE62[(matrix[1][0]*a + matrix[1][1]*b) % 62]
+    
+    // Nelyginio masyvo atvejis:
+    JEI current.size() % 2 == 1:
+        last_idx = current.size() - 1
+        pos = last_idx % seed.size()
+        seed[pos] = BASE62[(current[last_idx] * 17 + pos * 23) % 62]
+    
+    GRĄŽINTI seed
+```
 
-**MATRICOS DYDŽIŲ PALYGINIMAS:**
+### 4. Salt generavimas ir integravimas
+```
+    // Generuoju 4 simbolių salt iš input charakteristikų
+    salt = tuščias_string
+    input_sum = suma visų current elementų
+    
+    UŽ i NUO 0 IKI 4:
+        salt_val = (input_sum * (i + 7) + current[i % current.size()] * 13) % 62
+        salt += BASE62[salt_val]
+    
+    // Integruoju salt į seed
+    UŽ kiekvieną simbolį s IŠ salt:
+        salt_ascii = ASCII(s)
+        salt_pos = (input_sum + i * salt_ascii) % seed.size()
+        new_val = (seed[salt_pos] + salt_ascii + input_sum) % 62
+        seed[salt_pos] = BASE62[new_val]
+```
 
-| Matricos dydis | Throughput | Compute time | Total time | Avalanche bits% | Išvada |
-|----------------|------------|--------------|------------|-----------------|---------|
-| **BE matricos** | 743k hash/s | 269ms | 3017ms | 44.308% | Baseline |
-| **3x3 matrica** | **769k hash/s** | 260ms | 3264ms | **44.481%** | ✅ **OPTIMALUS** |
-| **4x4 matrica** | 862k hash/s | 232ms | 3052ms | 43.862% | Greitas bet avalanche pablogėjo |
-| **10x10 matrica** | 107k hash/s | 1863ms | 9292ms | 44.476% | ❌ Per lėtas |
+### 5. Maišymas su seed
+```
+    seed = generate_seed(current)  // gauti input-priklausomą seed
+    
+    // Seed ir duomenų maišymas:
+    UŽ i NUO 0 IKI previous.size():
+        si = i % seed.size()  // cikliškas seed indeksas
+        
+        // Sudėtinga formulė su pozicijos poveikiu:
+        rez = (ASCII(seed[si]) * previous[i] * (i+1)) % 256
+        
+        // Atnaujinti seed:
+        seed[si] = BASE62[rez % 62]
+```
 
-**(ne)GALUTINĖ IŠVADA:** paliksiu 3x3 matricą dėl grožio (originalumo :Dd), bet šiaip ir avalanche geriausias ir greičio labai nepagadino, tai vis šis tas.
+### 6. Pavertimas į base62
+```
+    output = tuščias_string
+    
+    // Generuoti 64 simbolių hash:
+    UŽ i NUO 0 IKI 64:
+        a = ASCII(seed[i % seed.size()])      // seed simbolis (cikliškai)
+        b = previous[i % previous.size()]     // duomenų elementas (cikliškai)
+        
+        // Galutinė formulė su pozicijos poveikiu:
+        v = (a + b + i * 17) % 62
+        
+        output += BASE62[v]  // pridėti base62 simbolį
+    
+    GRĄŽINTI output  // 64 simbolių hash
+```
 
-Nusprendžiau sugrįžti prie šitos idėjos ir pabandyti įdėti matricų daugybą į kitą vietą - į seed generavimą. Kad ne visą laik naudotų tą patį seed, o kad jis priklausytų nuo duomenų.
 
-Įdėjau mini matricą daugybai.
 
----
-
-### 4 užduotis: jau sugeneruoto seed dar vienas permaišymas - nepritaikiau
-
-Kiekvienas iš 64 simbolių paveikia visus kitus 63:
-* kas ketvirtam nuo i+1 pridės savo reikšmę mod 256
-* kas ketvirtam nuo i+2 atims savo reikšmę mod 256
-Ir taip viska sukasi rastu per visus elementus išskyrus i, bet prieš keičiant kitą elementą visą laik prie i pridedu seną jo reikšmę.
-
-**IŠVADA:** nepritaikiau, nes neapsimoka. `super3mixer` yra pagrindinis algoritmas kuris paveikia avalanche, šiam momentui nesugalvoju dar kažko kas galėtų jį pralenk ir pagerint avalanche. Viskas kitas neduoda jokios prasmės šalia `super3mixer`.
-
----
-
-## Eksperimentinis tyrimas 
+## EKSPERIMENTINIS TYRIMAS
 
 Visi rezultatai rašomi į **`analysis/tests.report.txt`** failą.
 Testams pritaikytas OpenMP su 24 threads.
@@ -257,26 +289,29 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ---
 
-## Rezultatų santrauka (2025-09-30)
+## HASHO APTARIMAS
 
-* ✅ **Ilgis** – visada 64 simboliai
-* ✅ **Deterministiškumas** – užtikrintas visais atvejais
-* ✅ **Avalanche efektas** – 44.5% bitų pokytis, 75.1% hex pokytis 
-* ✅ **Kolizijos** – 0 kolizijų dar vis nerasta
-* ✅ **Efektyvumas** – linijinis augimas, 772k hash/s su matrica
-* ✅ **Negrįžtamumas** – sėkmingai demonstruotas su salt'ais
-* ✅ **Paralelizacija** – testai su 24 threads OpenMP
-* ✅ **3x3 matrica** – optimalus balansas tarp avalanche ir greičio
+### Kas gerai:
+- **Avalanche testas** gavosi 44.3%, tai arti 50% kas yra geras rezultatas
+- **Kolizijų neradau** per 400k testus, tai gerai
+- **Greitas algoritmas** - 790k hash'ų per sekundę
+- **Dirba su bet kokiu tekstu** - ir trumpu ir ilgu
+
+### Kas galėtų būt geriau:
+- **Nežinau ar tikrai saugus** - niekas dar netikrino ar nėra skylių
+- **Modulo operacijos** gal sukuria kokių nors pattern'ų
+- **64 simbolių hash** gal per trumpas rimtesnėms aplikacijoms
+
+### Išvados:
+Algoritmas atrodo gerai failu tikrinimui ar paprastoms užduotims. Bet rimtai kriptografijai geriau naudot jau patvirtintus algoritmus kaip SHA-256.
+
+Galima tobulint: padaryti ilgesnį hash'ą, testuot prieš žinomas atakas.
+
+**Automatinis salt jau pridėtas** - algoritmas dabar generuoja dinaminį salt iš input charakteristikų!
+
+
 
 ---
-
-## Atlikti darbai v0.12
-
-* ✅ **Patobulint seed maišymą** - minimaliai, priklausomybė nuo elemento vietos
-* ✅ **Pertikrint algortimo žingsnius** - optimizavau algoritmą
-* ✅ **Kažką su matricom** - padariau daugybą su mini matrica seed'o generavime
-* ✅ **Sugeneruoto hash dar vienas permaišymas** - nepritaikiau
-
 
 ## Tolimesni darbai 
 
@@ -296,3 +331,5 @@ Testams pritaikytas OpenMP su 24 threads.
 * **v0.11** – pritaikyti 4 algoritmo roundai, optimizavimo vėliavėlė pakeista iš O2 į O3,implementuotas OpenMP į testus, pridėti papildomi du maišymai, kurie priklauso nuo kiekvieno elemento vertės.
 
 * **v0.12** – įvairios eksperimentinės užduotys aprašytos `README.md`, seed generavimas su matrica kuri dauginama su gautais duomenim, patobulintas seed maišymas, optimizuotas hash generavimo algoritmas.
+
+* **v0.1final** – galutinis own hasho versijos v0.1 readme su pseudo kodu. Išėmiau dalinimą į blokus, nes nelabai turi prasmės mano algoritme dabar jau. Įdėjau salt'ą.
