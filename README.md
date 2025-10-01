@@ -38,7 +38,7 @@
 
 ### 1 užduotis: patobulint seed maišymą
 
-1) Padariau vietoj sudeties daugybą
+1) Padariau vietoj sudėties daugybą
 
 **IŠVADA:** pagerėjo greitis :Dd? bet avanache nepakito
 
@@ -61,7 +61,7 @@ Pabandžiau x2 ir kitokius skaičius.
 
 **IŠVADA:** avalanche tiek mažai pagerėjo, kad neapsimoka dėl to prarasti efektyvumo.
 
-3) Apvertimas - nepritaikiau
+4) Apvertimas - nepritaikiau
 
 Seed apvertimas po kiekvieno žingsnio.
 
@@ -72,9 +72,9 @@ Seed apvertimas po kiekvieno žingsnio.
 Tikrinau algortimo efektyvumą išimant žingsnius. Tokiu būdų išėmiau nereikalingas vietas, kurios nepridėjo daug naudos, tokiu būdu algoritmas aiškesnis ir trumpesnis.
 
 Išėmiau: 
-b) apverciu bloku eile (po 4 elementus)
-d) vel sujungiu i viena masyva
-e) apverciu visa masyva
+b) apverčiu blokų eilę (po 4 elementus)
+d) vėl sujungiu į vieną masyvą
+e) apverčiu visą masyvą
 
 **IŠVADA:** praradau tik 0.14% avalanche efekto, bet gavau +111% performance pagerinimą.
 
@@ -260,12 +260,12 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ---
 
-## Rezultatų santrauka (2025-09-30 su 3x3 matrica)
+## Rezultatų santrauka (2025-09-30)
 
 * ✅ **Ilgis** – visada 64 simboliai
 * ✅ **Deterministiškumas** – užtikrintas visais atvejais
-* ✅ **Avalanche efektas** – 44.5% bitų pokytis, 75.1% hex pokytis (puiku!)
-* ✅ **Kolizijos** – 0 kolizijų iš 400,000 testų
+* ✅ **Avalanche efektas** – 44.5% bitų pokytis, 75.1% hex pokytis 
+* ✅ **Kolizijos** – 0 kolizijų dar vis nerasta
 * ✅ **Efektyvumas** – linijinis augimas, 772k hash/s su matrica
 * ✅ **Negrįžtamumas** – sėkmingai demonstruotas su salt'ais
 * ✅ **Paralelizacija** – testai su 24 threads OpenMP
@@ -301,4 +301,4 @@ Testams pritaikytas OpenMP su 24 threads.
 
 * **v0.11** – pritaikyti 4 algoritmo roundai, optimizavimo vėliavėlė pakeista iš O2 į O3,implementuotas OpenMP į testus, pridėti papildomi du maišymai, kurie priklauso nuo kiekvieno elemento vertės.
 
-* **v0.12** – 
+* **v0.12** – seed generavimas su matrica kuri dauginama su gautais duomenim, patobulintas seed maišymas, optimizuotas hash generavimo algoritmas.
