@@ -267,13 +267,13 @@ Testams pritaikytas OpenMP su 24 threads.
 
 **Eiga:** testuojamos poros, kurios skiriasi tik vienu simboliu. Skaičiuojama, kiek procentų bitų pasikeičia.
 
-**Rezultatai (su 3x3 matrica, 100k porų, 24 threads):**
-  - **Throughput:** 772,200 hash/s
-  - **Compute time:** 259ms 
-  - **Bitų lygiu:** min=0.0%, max=60.9%, **avg=44.5%**
-  - **Hex lygiu:** min=0.0%, max=96.1%, **avg=75.1%**
+**Rezultatai:**
+  - **Throughput:** 738,007 hash/s
+  - **Compute time:** 271ms 
+  - **Bitų lygiu:** min=0.0%, max=61.5%, **avg=45.2%**
+  - **Hex lygiu:** min=0.0%, max=96.1%, **avg=76.5%**
 
-**Komentaras:** pridėjus ASCII maišymą ir kitą papildomą maišymą (abiejų principas, kad elementai maišosi pagal jų vertę) lavina pagerėjo per 30%. 
+**Komentaras:** pridėjus salt avalanche efektas pagerėjo iki 45.2% (+0.7%), throughput kiek sumažėjo dėl papildomų skaičiavimų. 
 
 ---
 
@@ -292,35 +292,23 @@ Testams pritaikytas OpenMP su 24 threads.
 ## HASHO APTARIMAS
 
 ### Kas gerai:
-- **Avalanche testas** gavosi 44.3%, tai arti 50% kas yra geras rezultatas
+- **Avalanche** gavosi 44.3%, tai arti 50% kas yra geras rezultatas
 - **Kolizijų neradau** per 400k testus, tai gerai
-- **Greitas algoritmas** - 790k hash'ų per sekundę
-- **Dirba su bet kokiu tekstu** - ir trumpu ir ilgu
+- **Visai greitas algoritmas** - 790k hash'ų per sekundę
+- **Dirba su bet kokiu tekstu** - ir tuščiu ir ilgu
 
 ### Kas galėtų būt geriau:
-- **Nežinau ar tikrai saugus** - niekas dar netikrino ar nėra skylių
-- **Modulo operacijos** gal sukuria kokių nors pattern'ų
-- **64 simbolių hash** gal per trumpas rimtesnėms aplikacijoms
+- Galėtų būt geresnis avalanche
+- Galėtų būt trumpesnis. Prikrauta minimaliai duodančių funkcijų (palikau ale dėl originalumo kaip kurias)
+- Galėtų būti dar greitesnis
+- Galėtų būt naudojamos sudetingesnės operacijos dėl sunkesnio atkūrimo
 
-### Išvados:
-Algoritmas atrodo gerai failu tikrinimui ar paprastoms užduotims. Bet rimtai kriptografijai geriau naudot jau patvirtintus algoritmus kaip SHA-256.
-
-Galima tobulint: padaryti ilgesnį hash'ą, testuot prieš žinomas atakas.
-
-**Automatinis salt jau pridėtas** - algoritmas dabar generuoja dinaminį salt iš input charakteristikų!
-
-
-
----
 
 ## Tolimesni darbai 
 
 * **Palygint su jau egzistuojančiu Hash**
 * **Palyginimas su MD5 į README**
-* **Pseudo kodas į README**
-* **Diagramos į README**
 * **AI siūlomi patobulinimai** - bet tik versijoj v0.2
-
 
 ---
 
