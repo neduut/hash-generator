@@ -1,6 +1,6 @@
 # Hash generatorius 
 
-> **UŽDUOTIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
+**UŽDUOTIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
 
 ---
 
@@ -169,7 +169,7 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ### 1) Išvedimo dydis (64 simboliai)
 
-**Principas:** nepriklausomai nuo įvesties ilgio ar turinio, hash’as visada turi būti fiksuoto dydžio – 64 simboliai.
+> **Principas:** nepriklausomai nuo įvesties ilgio ar turinio, hash’as visada turi būti fiksuoto dydžio – 64 simboliai.
 
 **Eiga:** generuojami hash’ai iš įvairių įvesčių: tuščios eilutės, vieno simbolio („a“, „b“), ilgesnių ir atsitiktinių failų.
 
@@ -179,7 +179,7 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ### 2) Deterministiškumas
 
-**Principas:** jei įvedama ta pati eilutė, hash’as turi būti identiškas kiekvieną kartą.
+> **Principas:** jei įvedama ta pati eilutė, hash’as turi būti identiškas kiekvieną kartą.
 
 **Eiga:** kartojami bandymai su tomis pačiomis įvestimis (pvz., „a.txt“, „b.txt“, `random_2000_A.txt`).
 
@@ -189,7 +189,7 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ### 4) Efektyvumas
 
-**Principas:** matuoti, kaip greitai algoritmas veikia didėjant įvesties dydžiui.
+> **Principas:** matuoti, kaip greitai algoritmas veikia didėjant įvesties dydžiui.
 
 **Eiga:** pasirenkamas didelis failas (`konstitucija.txt`), skaičiuojama su 1, 2, 4, 8, ... eilutėmis. Testas kartojamas kelis kartus, fiksuojamas vidutinis laikas.
 
@@ -214,7 +214,7 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ### 5) Kolizijų paieška
 
-**Principas:** tikrinama, ar dvi skirtingos įvestys gali duoti identišką hash’ą.
+> **Principas:** tikrinama, ar dvi skirtingos įvestys gali duoti identišką hash’ą.
 
 **Eiga:** generuojama po 100 000 porų įvairaus ilgio (10, 100, 500, 1000 simbolių) ir lyginami hash’ai.
 
@@ -234,7 +234,7 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ### 6) Lavinos efektas
 
-**Principas:** mažas pokytis įvestyje turi sukelti didelį pokytį išvestyje (~50% bitų turėtų pasikeisti).
+> **Principas:** mažas pokytis įvestyje turi sukelti didelį pokytį išvestyje (~50% bitų turėtų pasikeisti).
 
 **Eiga:** testuojamos poros, kurios skiriasi tik vienu simboliu. Skaičiuojama, kiek procentų bitų pasikeičia.
 
@@ -250,7 +250,7 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ### 7) Negrįžtamumo demonstracija 
 
-**Principas:** panaudojus papildomą „druską“ (salt), hash’ai turi keistis akivaizdžiai. Tas pats salt turi duoti tą patį hash, o skirtingi – skirtingus.
+> **Principas:** panaudojus papildomą „druską“ (salt), hash’ai turi keistis akivaizdžiai. Tas pats salt turi duoti tą patį hash, o skirtingi – skirtingus.
 
 **Eiga:** palyginami hash’ai, sugeneruoti su įvairiais saltais (`salt1`, `salt2`, `!`, ilgesnis string’as).
 
