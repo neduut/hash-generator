@@ -43,6 +43,7 @@
 ## PSEUDO KODAS
 
 ### 1. String į ASCII
+Paverčia kiekvieną input simbolį į ASCII kodą ir sudeda į masyvą.
 ```
 FUNKCIJA generate_hash(user_input):
     current = tuščias_masyvas
@@ -55,6 +56,7 @@ FUNKCIJA generate_hash(user_input):
 ```
 
 ### 2. Keturi maišymų roundai
+Atlieka 4 iteracijas, kur kiekviena apima tris maišymo žingsnius.
 ```
     ROUNDS = 4
     data = current  // kopija originalių duomenų
@@ -71,9 +73,10 @@ FUNKCIJA generate_hash(user_input):
 ```
 
 ### 2.1 Maišymas, priklausantis nuo vertės
+Perkelia elementus į naujas pozicijas priklausomai nuo jų vertės - lyginiai eina į priekį, nelyginiai atgal.
 ```
 FUNKCIJA value_dependent_shuffle(previous):
-    temp = previous  // kopija, kad nesugadinti originalius
+    temp = previous  // kopija, kad išlaikyti originalų
     n = previous.size()
     
     UŽ i NUO 0 IKI n:
@@ -90,6 +93,7 @@ FUNKCIJA value_dependent_shuffle(previous):
 ```
 
 ### 2.2 "Trys viename" maišymas
+Kiekvienas elementas paveikia tris kitus elementus pridėdamas savo vertę prie jų su skirtingais daugikliais.
 ```
 FUNKCIJA three_in_one_mixer(previous):
     temp = previous  // kopija originalių verčių
@@ -109,6 +113,7 @@ FUNKCIJA three_in_one_mixer(previous):
 ```
 
 ### 2.3 Pusių apvertimas
+Padalina masyvą per pusę ir sukeičia dalis vietomis. Jei dydis nelyginis - antra pusė gaunasi didesnė.
 ```
 FUNKCIJA swap_halves(previous):
     n = previous.size()
@@ -122,12 +127,13 @@ FUNKCIJA swap_halves(previous):
 ```
 
 ### 3. Seed generavimas
+Sukuria seed iš inputo naudodamas 2x2 matricą ir base62 konvertavimą poriniams elementams.
 ```
 FUNKCIJA generate_seed(current):
     seed = "Kx9mN3vL8qR5wY1pZ7jT2bF6hC4nA0sD"  // bazinis seed
     matrix = [[7, 13], [11, 5]]  // 2x2 transformacijos matrica
     
-    // Porinis apdorojimas su matrica:
+    // porinis apdorojimas su matrica:
     UŽ i NUO 0 IKI current.size() ŽINGSNIU 2:
         JEI i+1 < current.size():
             a = current[i]
@@ -136,11 +142,11 @@ FUNKCIJA generate_seed(current):
             pos1 = i % seed.size()
             pos2 = (i+1) % seed.size()
             
-            // Matricos daugyba ir base62 konvertavimas:
+            // matricos daugyba ir base62 konvertavimas:
             seed[pos1] = BASE62[(matrix[0][0]*a + matrix[0][1]*b) % 62]
             seed[pos2] = BASE62[(matrix[1][0]*a + matrix[1][1]*b) % 62]
     
-    // Nelyginio masyvo atvejis:
+    // nelyginio masyvo atvejis:
     JEI current.size() % 2 == 1:
         last_idx = current.size() - 1
         pos = last_idx % seed.size()
@@ -150,6 +156,7 @@ FUNKCIJA generate_seed(current):
 ```
 
 ### 4. Salt generavimas ir integravimas
+Automatiškai generuoja 4 simbolių salt iš input ir integruoja jį į seed.
 ```
     // Generuoju 4 simbolių salt iš input charakteristikų
     salt = tuščias_string
@@ -168,6 +175,7 @@ FUNKCIJA generate_seed(current):
 ```
 
 ### 5. Maišymas su seed
+Sujungia apdorotus duomenis su seed, cikliškai naudodamas abu masyvus pozicijos poveikiui.
 ```
     seed = generate_seed(current)  // gauti input-priklausomą seed
     
@@ -175,7 +183,7 @@ FUNKCIJA generate_seed(current):
     UŽ i NUO 0 IKI previous.size():
         si = i % seed.size()  // cikliškas seed indeksas
         
-        // Sudėtinga formulė su pozicijos poveikiu:
+        // Formulė su pozicijos poveikiu:
         rez = (ASCII(seed[si]) * previous[i] * (i+1)) % 256
         
         // Atnaujinti seed:
@@ -183,6 +191,7 @@ FUNKCIJA generate_seed(current):
 ```
 
 ### 6. Pavertimas į base62
+Sukuria 64 simbolių galutinį hash sujungdamas seed ir duomenis su pozicijos poveikiu base62 formatu.
 ```
     output = tuščias_string
     
@@ -273,7 +282,7 @@ Testams pritaikytas OpenMP su 24 threads.
   - **Bitų lygiu:** min=0.0%, max=61.5%, **avg=45.2%**
   - **Hex lygiu:** min=0.0%, max=96.1%, **avg=76.5%**
 
-**Komentaras:** pridėjus salt avalanche efektas pagerėjo iki 45.2% (+0.7%), throughput kiek sumažėjo dėl papildomų skaičiavimų. 
+**Komentaras:** pridėjus salt, avalanche efektas pagerėjo iki 45.2% (+0.7%), throughput kiek sumažėjo dėl papildomų skaičiavimų. 
 
 ---
 
@@ -296,6 +305,7 @@ Testams pritaikytas OpenMP su 24 threads.
 - **Kolizijų neradau** per 400k testus, tai gerai
 - **Visai greitas algoritmas** - 790k hash'ų per sekundę
 - **Dirba su bet kokiu tekstu** - ir tuščiu ir ilgu
+- Yra ir **seed** ir **salt**
 
 ### Kas galėtų būt geriau:
 - Galėtų būt geresnis avalanche
