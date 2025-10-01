@@ -24,7 +24,7 @@
    d) Sujungiu masyvą
    e) Apverčiu visą masyvą
    f) Sukeičiu puses
-   g) ASCII maišymas (kievienas ele. paveikia kitus 3)
+   g) Super maišymas (kievienas ele. paveikia kitus 3)
 3. Seed (fiksuotas 32 simbolių string'as)
 4. Maišymas su seed
 5. Base62 kodavimas
@@ -161,7 +161,7 @@ Pabandžiau pritaikyt algoritmą, kur vienas elementas paveiktų kitus 3 element
 
 **Kodas:**
 ```cpp
-void ascii_mixer(vector<int>& blocks) {
+void super3mixer(vector<int>& blocks) {
     vector<int> temp = blocks; // kopija
     for (size_t i = 0; i < temp.size(); ++i) {
         int val = temp[i];
@@ -175,7 +175,7 @@ void ascii_mixer(vector<int>& blocks) {
     }
 }
 ```
-**IŠVADA:** ASCII maišytuvas pagerino avalanche efektą, neprarandant greičio.
+**IŠVADA:** Super maišytuvas pagerino avalanche efektą, neprarandant greičio.
 
 ---
 
@@ -291,7 +291,7 @@ Visi rezultatai rašomi į **`analysis/`** katalogą.
 * ✅ **Patikrint optimizavimo vėliavėles** - pakeista iš -O2 į -O3
 * ✅ **Patobulintas elementų maišymas** - priklauso nuo elemento vertės
 * ✅ **OpenMP į testus** - 13.2x greičio pagerinimas
-* ✅ **ASCII maišymas** - papildomas maišymo žingsnis
+* ✅ **Super maišymas** - papildomas maišymo žingsnis
 
 ## Tolimesni darbai 
 
