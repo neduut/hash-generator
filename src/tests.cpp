@@ -72,7 +72,7 @@ static void set_optimal_threads() {
 // --------- bendra konfigūracija / utils ----------
 
 static inline string ANALYSIS_DIR() { return "analysis"; }
-static inline string REPORT_PATH()  { return ANALYSIS_DIR() + string("/tests_report.txt"); }
+static inline string REPORT_PATH()  { return ANALYSIS_DIR() + string("/ai_test_report.txt"); }
 
 static int env_int(const char* name, int defv) {
     const char* v = std::getenv(name);

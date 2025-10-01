@@ -1,0 +1,110 @@
+========================================
+TEST SESSION START @ 2025-10-01 21:12:17
+[PERFORMANCE] 2025-10-01 21:12:18
+lines,avg_ms
+1,0.00
+2,0.00
+4,0.00
+8,0.00
+16,0.00
+32,0.00
+64,0.00
+128,1.20
+256,2.40
+512,5.00
+
+[COLLISIONS] 2025-10-01 21:12:18  NUM_PAIRS=100000 THREADS=24
+L=10, collisions=0, rate=0.000000%, compute_time=90ms, total_time=100ms
+L=100, collisions=0, rate=0.000000%, compute_time=235ms, total_time=316ms
+L=500, collisions=0, rate=0.000000%, compute_time=971ms, total_time=1320ms
+L=1000, collisions=0, rate=0.000000%, compute_time=1926ms, total_time=2642ms
+TOTAL_TIME=4452ms, THREADS=24
+
+[AVALANCHE] 2025-10-01 21:12:23  NUM_PAIRS=100000 LEN=200 THREADS=24
+TIMING: data_gen=90ms, compute=442ms, total=532ms
+THROUGHPUT: 452488.7 hash/s
+bits%  min=0.521  max=60.156  avg=42.719
+hex%   min=1.562  max=95.312  avg=72.494
+
+[HIDING] 2025-10-01 21:12:23
+salt="salt1" -> linltdL6u5WpggjKn1FTC4zucmkCZ62mS00fqF8olwYgZHf6z1VTrXzCUJ73hdD1
+salt="salt1" -> linltdL6u5WpggjKn1FTC4zucmkCZ62mS00fqF8olwYgZHf6z1VTrXzCUJ73hdD1
+salt="salt2" -> nr2Czv2LFw9lhedGsLUgrbAmRewdHKzFwAkHcPIDS6yp7s7DNFnWZtDx3ArPt4Pl
+salt="ilgesnis_saltas_123" -> reCY7HQPXEnjpA9ILcNF7f1JIVlTU1G8Gc5SueEIyyUOLCXFfy1muWEcOnDXn9tX
+salt="!" -> Rl5JoVfekQ2C6Wm8fgKGae8KWmB1AmG1CUr46wGU1ing3KHhZRn95MpebnJhlPsF
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> 9ByKXqUvBBXJnbeKnR6CZ7GhXAqb7CCQAHxIfFrQ2RD7nl2cxAspEaYGEPWcStsw
+[2025-10-01 21:12:18] RUN 1 - išvedimo dydis
+OK 1 - išvedimo dydis
+OK išvedimo dydis (1ms)
+[2025-10-01 21:12:18] RUN 2 - deterministiškumas
+OK 2 - deterministiškumas
+OK deterministiškumas (2ms)
+[2025-10-01 21:12:18] RUN 4 - efektyvumas
+OK 4 - efektyvumas
+OK efektyvumas (54ms)
+[2025-10-01 21:12:18] RUN 5 - kolizijos (100000 porų), threads=24
+OK 5 - kolizijos
+OK kolizijos (4452ms)
+[2025-10-01 21:12:23] RUN 6 - lavina (100000 porų), threads=24
+OK 6 - lavina
+OK lavinos efektas (550ms)
+[2025-10-01 21:12:23] RUN 7 - hiding
+OK 7 - hiding
+OK hiding (0ms)
+SUMMARY: OK
+========================================
+========================================
+TEST SESSION START @ 2025-10-01 21:17:42
+[PERFORMANCE] 2025-10-01 21:17:43
+lines,avg_ms
+1,0.00
+2,0.00
+4,0.00
+8,0.00
+16,0.00
+32,0.00
+64,0.00
+128,1.00
+256,2.20
+512,5.20
+
+[COLLISIONS] 2025-10-01 21:17:43  NUM_PAIRS=100000 THREADS=24
+L=10, collisions=0, rate=0.000000%, compute_time=145ms, total_time=155ms
+L=100, collisions=0, rate=0.000000%, compute_time=272ms, total_time=347ms
+L=500, collisions=0, rate=0.000000%, compute_time=1255ms, total_time=1639ms
+L=1000, collisions=0, rate=0.000000%, compute_time=2344ms, total_time=3062ms
+TOTAL_TIME=5278ms, THREADS=24
+
+[AVALANCHE] 2025-10-01 21:17:48  NUM_PAIRS=100000 LEN=200 THREADS=24
+TIMING: data_gen=85ms, compute=553ms, total=638ms
+THROUGHPUT: 361663.7 hash/s
+bits%  min=2.344  max=61.198  avg=47.645
+hex%   min=4.688  max=96.094  avg=80.464
+
+[HIDING] 2025-10-01 21:17:49
+salt="salt1" -> DBvQa7wespITbndz6WyJRQABZHI7kE9J0nwhsUuL0JW7G6RoWJvnObu17kKtV02a
+salt="salt1" -> DBvQa7wespITbndz6WyJRQABZHI7kE9J0nwhsUuL0JW7G6RoWJvnObu17kKtV02a
+salt="salt2" -> uTQ6ci5TkcS9RA4dSy3Ze2KrJExaAfW6oSCmqXBNB9kzJqfiUqIUVmh9SQOJ88br
+salt="ilgesnis_saltas_123" -> 359XrGFyRS1Fb7x6QsiEH2ha71jgdVHCIvp14Le49LuWAtsxf1U2XsDplL5IM8OV
+salt="!" -> 0pwuF9Jx8Smm0FZvgL5sWybwRQeNGxdUJ6TiW9ujsziJZU5nZcgt7aC0QzWFT1N7
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> 60vDt3lsaKrbCkjIt6MWK2haUKFtwN6X8vwx2b9TwzY1w3nyfOCxdPJXqBH331dk
+[2025-10-01 21:17:43] RUN 1 - išvedimo dydis
+OK 1 - išvedimo dydis
+OK išvedimo dydis (1ms)
+[2025-10-01 21:17:43] RUN 2 - deterministiškumas
+OK 2 - deterministiškumas
+OK deterministiškumas (3ms)
+[2025-10-01 21:17:43] RUN 4 - efektyvumas
+OK 4 - efektyvumas
+OK efektyvumas (56ms)
+[2025-10-01 21:17:43] RUN 5 - kolizijos (100000 porų), threads=24
+OK 5 - kolizijos
+OK kolizijos (5278ms)
+[2025-10-01 21:17:48] RUN 6 - lavina (100000 porų), threads=24
+OK 6 - lavina
+OK lavinos efektas (654ms)
+[2025-10-01 21:17:49] RUN 7 - hiding
+OK 7 - hiding
+OK hiding (0ms)
+SUMMARY: OK
+========================================
