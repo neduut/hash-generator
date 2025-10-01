@@ -87,55 +87,50 @@ namespace {
         v.insert(v.end(), first.begin(), first.end());
     }
 
-    // ASCII masymas - kiekvienas elementas paveiks 3 kitus 
-    void ascii_mixer(vector<int>& blocks) {
+    // pagrindinis masymas - kiekvienas elementas paveiks 3 kitus 
+    void super3mixer(vector<int>& blocks) {
         if (blocks.empty()) return;
         vector<int> temp = blocks; // kopija, kad nepaveiktu vienas kito
         
         for (size_t i = 0; i < temp.size(); ++i) {
-            int val = temp[i];
-            
-            size_t target1 = (i + abs(val)) % blocks.size();
-            size_t target2 = (i + abs(val) * 2) % blocks.size();
-            size_t target3 = (i + abs(val) * 3) % blocks.size();
-            
-            blocks[target1] = (blocks[target1] + val) % 256;
-            blocks[target2] = (blocks[target2] + val * 2) % 256;
-            blocks[target3] = (blocks[target3] + val * 3) % 256;
+            int sk = temp[i];
+
+            size_t e1 = (i + sk) % blocks.size();
+            size_t e2 = (i + sk * 2) % blocks.size();
+            size_t e3 = (i + sk * 3) % blocks.size();
+
+            // grazinu i 0-255 intervala
+            blocks[e1] = (blocks[e1] + sk) % 256;
+            blocks[e2] = (blocks[e2] + sk * 2) % 256;
+            blocks[e3] = (blocks[e3] + sk * 3) % 256;
         }
     }
 
-    // daugyba su 3x3 matrica
-    void simple_matrix_mix(vector<int>& blocks) {
-        if (blocks.size() < 3) return;
+    // generuoju seed priklausomai nuo input simboliu
+    string generate_seed_from_input(const vector<int>& ascii_vals) {
+        string seed = "Kx9mN3vL8qR5wY1pZ7jT2bF6hC4nA0sD";
         
-        int matrix[3][3] = {
-            {7, 13, 5},
-            {9, 3, 17},
-            {4, 15, 8}
-        };
+        int matrix[2][2] = {{7, 13}, {11, 5}};
         
-        vector<int> temp = blocks;
-        
-        // imu po 3 elementus ir daugu su matrica
-        for (size_t i = 0; i + 2 < blocks.size(); i += 3) {
-            int a = temp[i];
-            int b = temp[i + 1];
-            int c = temp[i + 2];
+        for (size_t i = 0; i + 1 < ascii_vals.size(); i += 2) {
+            int a = ascii_vals[i];
+            int b = ascii_vals[i + 1];
             
-            blocks[i]     = (matrix[0][0]*a + matrix[0][1]*b + matrix[0][2]*c) % 256;
-            blocks[i + 1] = (matrix[1][0]*a + matrix[1][1]*b + matrix[1][2]*c) % 256;
-            blocks[i + 2] = (matrix[2][0]*a + matrix[2][1]*b + matrix[2][2]*c) % 256;
+            size_t pos1 = i % seed.size();
+            size_t pos2 = (i + 1) % seed.size();
+            
+            seed[pos1] = BASE62[(matrix[0][0] * a + matrix[0][1] * b) % 62];
+            seed[pos2] = BASE62[(matrix[1][0] * a + matrix[1][1] * b) % 62];
         }
         
-        // jei liko masyve maziau nei 3 nesudauginti elementai tai juos paprastai sumaisau
-        size_t remaining = blocks.size() % 3;
-        if (remaining > 0) {
-            size_t start = blocks.size() - remaining;
-            for (size_t i = start; i < blocks.size(); ++i) {
-                blocks[i] = (temp[i] * 19 + temp[0] * 23) % 256;
-            }
+        // jei liko vienas elementas nelyginiame masyve
+        if (ascii_vals.size() % 2 == 1) {
+            size_t last_idx = ascii_vals.size() - 1;
+            size_t pos = last_idx % seed.size();
+            seed[pos] = BASE62[(ascii_vals[last_idx] * 17 + pos * 23) % 62];
         }
+        
+        return seed;
     }
 
 } // namespace
@@ -167,13 +162,10 @@ string generate_hashe(const string& user_input) {
         // b) maisymas priklausomai nuo elemento reiksmes - efektyvus diffusion
         value_dependent_shuffle(blocks_flat);
 
-        // c) ASCII maisyma kur vienas elementas paveikia kitus 3 - stipriausias efektas
-        ascii_mixer(blocks_flat);
+        // c) maisymas kur vienas elementas paveikia kitus 3 - stipriausias efektas
+        super3mixer(blocks_flat);
 
-        // d) daugyba su matrica
-        simple_matrix_mix(blocks_flat);
-
-        // e) padalinu masyva per puse ir sukeiciu dalis vietomis - finalus permutation
+        // d) padalinu masyva per puse ir sukeiciu dalis vietomis - finalus permutation
         swap_halves(blocks_flat);
 
         // jei tuscia ivestis
@@ -185,8 +177,8 @@ string generate_hashe(const string& user_input) {
         state = blocks_flat;
     }
 
-    // 3) seed su kuriuo maisysiu
-    string seed = "Kx9mN3vL8qR5wY1pZ7jT2bF6hC4nA0sD"; // 32 simboliai
+    // 3) generuoju seed priklausomai nuo input simboliu
+    string seed = generate_seed_from_input(ascii_vals);
 
     // 4) maisymas su seed 
     for (size_t i = 0; i < blocks_flat.size(); ++i) {

@@ -6,12 +6,12 @@
 
 ## Vartotojo įvestis
 
-* 1. Meniu gali pasirinkti:
+1. Meniu gali pasirinkti:
   * Generuoti hash
   * Atlikti tyrimą
   * Palyginti su MD5
 
-* 2. Įvestį gali pasirinkti:
+2. Įvestį gali pasirinkti:
   * **Iš failo** (`files/...`)
   * **Įrašyti ranka** (viena eilutė)
 * Įvesties klaidoms aptikti naudojami `try/catch` (aiškūs pranešimai, leidžia bandyti iš naujo).
@@ -25,9 +25,9 @@
 2. Kartojimas 4 roundus:
    a) Blokavimas (po 4, papildymas)
    b) Sumaišau elementus priklausomai nuo jų vertės
-   c) Daugyba su 3x3 matrica
-   d) ASCII maišymas (kievienas el. paveikia kitus 3)
-3. Seed (fiksuotas 32 simbolių string'as)
+   c) Super maišymas (kievienas el. paveikia kitus 3)
+   d) padalinu per pusę ir sukeičiu vietom
+3. Seed generavimas - matricos daugyba su įvestim
 4. Maišymas su seed
 5. Base62 kodavimas
 6. 64 simbolių rezultatas
@@ -78,12 +78,8 @@ e) apverciu visa masyva
 
 **IŠVADA:** praradau tik 0.14% avalanche efekto, bet gavau +111% performance pagerinimą.
 
-### 3 užduotis: palygint su jau egzistuojančiu Hash
 
-Palyginau su MD5
-
-
-### 4 užduotis: įdėti kažką gal su matrica - 
+### 3 užduotis: įdėti kažką gal su matrica 
 
 Įdėjau daugyba su 4x4 matrica kaip papildomą žingsnį kur vyksta 4 roundai.
 Gal reiktų įdėt OpenMP į tai? Reik pabandyt.
@@ -149,8 +145,20 @@ Bandau dar 3x3 matricą.
 | **4x4 matrica** | 862k hash/s | 232ms | 3052ms | 43.862% | Greitas bet avalanche pablogėjo |
 | **10x10 matrica** | 107k hash/s | 1863ms | 9292ms | 44.476% | ❌ Per lėtas |
 
-**GALUTINĖ IŠVADA:** paliksiu 3x3 matricą dėl grožio (originalumo :Dd), bet šiaip ir avalanche geriausias ir greičio labai nepagadino, tai vis šis tas.
+**(ne)GALUTINĖ IŠVADA:** paliksiu 3x3 matricą dėl grožio (originalumo :Dd), bet šiaip ir avalanche geriausias ir greičio labai nepagadino, tai vis šis tas.
 
+Nusprendžiau sugrįžti prie šitos idėjos ir pabandyti įdėti matricų daugybą į kitą vietą - į seed generavimą. Kad ne visą laik naudotų tą patį seed, o kad jis priklausytų nuo duomenų.
+
+Įdėjau mini matricą daugybai.
+
+### 4 užduotis: jau sugeneruoto seed dar vienas permaišymas - nepritaikiau
+
+Kiekvienas iš 64 simbolių paveikia visus kitus 63:
+* kas ketvirtam nuo i+1 pridės savo reikšmę mod 256
+* kas ketvirtam nuo i+2 atims savo reikšmę mod 256
+Ir taip viska sukasi rastu per visus elementus išskyrus i, bet prieš keičiant kitą elementą visą laik prie i pridedu seną jo reikšmę.
+
+**IŠVADA:** nepritaikiau, nes neapsimoka. `super3mixer` yra pagrindinis algoritmas kuris paveikia avalanche, šiam momentui nesugalvoju dar kažko kas galėtų jį pralenk ir pagerint avalanche. Viskas kitas neduoda jokios prasmės šalia `super3mixer`.
 
 ---
 
@@ -267,15 +275,16 @@ Testams pritaikytas OpenMP su 24 threads.
 
 ## Atlikti darbai v0.12
 
-* ✅ **Patobulint seed maišymą** - minimaliai
+* ✅ **Patobulint seed maišymą** - minimaliai, priklausomybė nuo elemento vietos
 * ✅ **Pertikrint algortimo žingsnius** - optimizavau algoritmą
-* ✅**Palyginimas su egzistuojančiais hash generatoriais** - palyginau su MD5
-* ✅ **Kažką su matricom** - padariau daugyba su 3x3 matrica
+* ✅ **Kažką su matricom** - padariau daugybą su mini matrica seed'o generavime
+* ✅ **Sugeneruoto hash dar vienas permaišymas** - nepritaikiau
 
 
 ## Tolimesni darbai 
 
-* **Palygunimas su MD5 į README**
+* **Palygint su jau egzistuojančiu Hash**
+* **Palyginimas su MD5 į README**
 * **Pseudo kodas į README**
 * **Diagramos į README**
 * **Pritaikyt OpenMP/OpenCL pagrindiniam algoritmui** - kaži ar būtina
