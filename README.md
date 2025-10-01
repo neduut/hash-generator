@@ -1,4 +1,4 @@
-# Hash generatorius ## HASH'O GENERAVIMO EIGA 
+# Hash generatorius 
 
 UŽDUOTIS:** sukurti **savo originalų** hash’o generatorių, atlikti **testus** ir iteratyviai **tobulinti**.
 
