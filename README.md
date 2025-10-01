@@ -1,6 +1,12 @@
-# Hash generatorius 
+# Hash generatorius
 
-UŽDUOTIS:** patobulinti savo sukurtą hash su AI įrankiais.
+**UŽDUOTIS:** patobulinti savo sukurtą hash su AI įrankiais.
+
+Šis projektas turi dvi hash'o generatorių implementacijas:
+
+1. **`ownHash`** - Originali hash algoritmo implementacija (failuose `ownHash.h` ir `ownHash.cpp`)
+2. **`aiHash`** - AI patobulinta hash algoritmo versija (failuose `aiHash.h` ir `aiHash.cpp`)
+
 
 ---
 
@@ -285,8 +291,9 @@ function generate_hash(input):
 
 ---
 
-## MANO IR AI PATOBULINTO HASH'O PALYGINIMAS
+## OWNHASH IR AIHASH IMPLEMENTACIJŲ PALYGINIMAS
 
+Ši sekcija palygina originalią hash implementaciją (`ownHash.cpp`) su AI patobulinta versija (`aiHash.cpp`).
 Visi rezultatai rašomi į **`analysis/comparison.results.txt`** failą.
 Testams pritaikytas OpenMP su 24 gijomis (threads) maksimaliam našumui.
 
@@ -423,4 +430,11 @@ salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> t3ZjbebAQmLfcs0OMZr9zP4gNpZGIW1d6hmjs
 
 * **v0.1final** – galutinis own hasho versijos v0.1 readme su pseudo kodu. Išėmiau dalinimą į blokus, nes nelabai turi prasmės mano algoritme dabar jau. Įdėjau salt'ą.
 
-* **v0.2** – AI patobulinimų versija. Integravau kriptografinius algoritmus: enhanced mixing su magic constants (0x9E3779B9, 0x85EBCA6B), bit rotation optimizacija naudojant C++20 std::rotl,"tThree-in-one mixer" patobulinimas - cascade efektas lavinos patobulinimui, Value-dependent shuffle - dinaminis maišymas pagal element vertes, 5-round processing - papildomas stabilumo raundas.
+* **v0.2** – Dvi atskiros hash implementacijos:
+  * `ownHash.cpp` - originali hash algoritmo implementacija
+  * `aiHash.cpp` - AI patobulinta versija su kriptografiniais algoritmais:
+    * Enhanced mixing su magic constants (0x9E3779B9, 0x85EBCA6B)
+    * Bit rotation optimizacija naudojant C++20 std::rotl
+    * "Three-in-one mixer" patobulinimas - cascade efektas lavinos patobulinimui
+    * Value-dependent shuffle - dinaminis maišymas pagal elemento vertes
+    * 5-round processing - papildomas stabilumo raundas

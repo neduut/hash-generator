@@ -1,6 +1,7 @@
 #include "ui.h"
 #include "constants.h"
 #include "ownHash.h"
+#include "aiHash.h"
 
 using namespace std;
 
@@ -56,9 +57,33 @@ static string readinput() {
 void run_hash_flow() {
     while (true) {
         try {
+            // Pasirinkimas tarp originalaus ir AI patobulinto hash
+            cout << "\nPasirinkite hash tipą:\n"
+                 << "1 - Originalus hash (ownHash)\n"
+                 << "2 - AI patobulintas hash (aiHash)\n";
+            
+            string hash_choice;
+            if (!getline(cin, hash_choice)) {
+                cerr << DATA_READ_ERROR << endl;
+                return;
+            }
+            hash_choice.erase(remove(hash_choice.begin(), hash_choice.end(), ' '), hash_choice.end());
+            
+            // Įvesties nuskaitymas
             string user_input = readinput();
-            string hash = generate_hash(user_input);
-            cout << "Sugeneruotas 64 simbolių hash: " << hash << endl;
+            string hash;
+            
+            // Hash generavimas pagal pasirinkimą
+            if (hash_choice == "1") {
+                hash = generate_hash(user_input);
+                cout << "Sugeneruotas originalus 64 simbolių hash: " << hash << endl;
+            } else if (hash_choice == "2") {
+                hash = generate_ai_hash(user_input);
+                cout << "Sugeneruotas AI patobulintas 64 simbolių hash: " << hash << endl;
+            } else {
+                cout << INVALID_CHOICE << endl;
+                continue;
+            }
         } catch (const exception& e) {
             cerr << e.what() << endl;
             cout << TRY_AGAIN_ << endl;
