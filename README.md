@@ -265,8 +265,6 @@ Testams pritaikytas OpenMP su 24 threads.
 * ✅ **Kolizijos** – 0 kolizijų dar vis nerasta
 * ✅ **Efektyvumas** – linijinis augimas, 772k hash/s su matrica
 * ✅ **Negrįžtamumas** – sėkmingai demonstruotas su salt'ais
-* ✅ **Paralelizacija** – testai su 24 threads OpenMP
-* ✅ **3x3 matrica** – optimalus balansas tarp avalanche ir greičio
 
 ---
 
