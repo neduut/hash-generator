@@ -241,7 +241,7 @@ Testams pritaikytas OpenMP su 24 threads.
   - **Bitų lygiu:** min=0.0%, max=60.9%, **avg=44.5%**
   - **Hex lygiu:** min=0.0%, max=96.1%, **avg=75.1%**
 
-**Komentaras:** pridėjus ASCII maišymą ir kitą papildomą maišymą (abiejų principas, kad elementai maišosi pagal jų vertę) lavina pagerėjo per 30%. 
+**Komentaras:** lavina pagerėjo labai labai minimaliai (apie 0.1%)
 
 ---
 
