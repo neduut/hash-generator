@@ -119,7 +119,24 @@ if (value % 2 == 0) {  // lyginis - stumiu į priekį
 
 **IŠVADA:** stipresnė difuzija, nes maišymas priklauso individualiai nuo kiekvieno simbolio vertės. Pagerėjo avalanche efektas nuo 1.5% iki 12.6%.
 
-### 4.1 užduotis: patobulinimas kitame maišymo algoritme - aka SUPER MAIŠYMAS
+
+### 5 užduotis: OpenMP į testus
+
+Programa labai ilgai atlikinėjo kolizijų testus, todėl baigės kantrybė ir nusprendžiau pabandyt įdėt į testus OpenMP, kad greičiau jie veiktų.
+
+Atlikau laiko matavimo testus su skirtingai threads skaičiais:
+
+Threads | Laikas    | Speedup | Efektyvumas
+--------|-----------|---------|------------
+1       | 507.7s    | 1.0x    | 100%
+4       | 159.0s    | 3.2x    | 80%
+12      | 57.4s     | 8.8x    | 73%
+18      | 43.7s     | 11.6x   | 65%
+24      | 38.4s     | 13.2x   | 55%
+
+**IŠVADA:** nusprendžiau implementuoti 24 threads paraleliniam skaičiavimui.
+
+### 6 užduotis: papildomas koks nors žingsnis - aka SUPER MAIŠYMAS
 
 Idėja buvo, kad ne vienas elementas pasikeičia, bet ir pasikeičia kiti elementai dėl jo. Kad algoritmas labai nesulėtėtų, pasirinkau padaryt taip, kad nuo vieno elemento pasikeičia kiti 3 elementai. 
 
@@ -149,53 +166,7 @@ void super3mixer(vector<int>& masyvas) {
 * Dabar 39% bitų pasikeičia (buvo tik 1.5%)
 * 94% simbolių pasikeičia
   
-**IŠVADA:** labai labai pagerėjo avalanche.
-
-### 5 užduotis: OpenMP į testus
-
-Programa labai ilgai atlikinėjo kolizijų testus, todėl baigės kantrybė ir nusprendžiau pabandyt įdėt į testus OpenMP, kad greičiau jie veiktų.
-
-Atlikau laiko matavimo testus su skirtingai threads skaičiais:
-
-Threads | Laikas    | Speedup | Efektyvumas
---------|-----------|---------|------------
-1       | 507.7s    | 1.0x    | 100%
-4       | 159.0s    | 3.2x    | 80%
-12      | 57.4s     | 8.8x    | 73%
-18      | 43.7s     | 11.6x   | 65%
-24      | 38.4s     | 13.2x   | 55%
-
-**IŠVADA:** nusprendžiau implementuoti 24 threads paraleliniam skaičiavimui.
-
-### 6 užduotis: papildomas koks nors žingsnis
-
-Pabandžiau pritaikyt algoritmą, kur vienas elementas paveiktų kitus 3 elementus.
-
-**Algoritmo principas:**
-* **`val`** = dabartinio elemento vertė pozicijoje `i` (po 4 roundų transformacijų)
-* **Targeting:** `target1 = (i + |val|) % array_size` - šoka per elemento vertę
-* **Targeting:** `target2 = (i + |val| × 2) % array_size` - šoka per dvigubą vertę  
-* **Targeting:** `target3 = (i + |val| × 3) % array_size` - šoka per trigubą vertę
-* **Modifikavimas:** target pozicijose pridedama `val`, `val×2`, `val×3`
-* **Normalizavimas:** viskas `% 256` (ASCII diapazonas)
-
-**Kodas:**
-```cpp
-void super3mixer(vector<int>& blocks) {
-    vector<int> temp = blocks; // kopija
-    for (size_t i = 0; i < temp.size(); ++i) {
-        int val = temp[i];
-        size_t target1 = (i + abs(val)) % blocks.size();
-        size_t target2 = (i + abs(val) * 2) % blocks.size();
-        size_t target3 = (i + abs(val) * 3) % blocks.size();
-        
-        blocks[target1] = (blocks[target1] + val) % 256;
-        blocks[target2] = (blocks[target2] + val * 2) % 256;
-        blocks[target3] = (blocks[target3] + val * 3) % 256;
-    }
-}
-```
-**IŠVADA:** Super maišytuvas pagerino avalanche efektą, neprarandant greičio.
+**IŠVADA:** labai labai pagerėjo avalanche ir beveik visai nepraradau greičio :))))
 
 ---
 
