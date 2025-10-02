@@ -99,18 +99,6 @@ Atlikti laiko matavimo testai, pilni rezultatai faile: `analysis`/`OPTIMIZATION_
 
 **IŠVADA:** pakeičiau iš -O2 į -03
 
-
-**Patobulinimai maišymo algoritme:**
-* Pridėjau bit shifting (>> ir <<) - tai labiau "suplaka" duomenis
-* Pridėjau dvigubą loop'ą - for (i) ir for (j)
-
-**Testai:**
-* Palyginus hash'us žodžių `"test"` ir `"tast"` (skiriasi tik 1 raide)
-* Dabar 39% bitų pasikeičia (buvo tik 1.5%)
-* 94% simbolių pasikeičia
-
-**IŠVADA:** hash'ai dabar daug geriau reaguoja į mažus pokyčius 
-
 ### 4 užduotis: patobulintas elementų maišymas
 
 **Naujasis algoritmas:**
@@ -130,6 +118,38 @@ if (value % 2 == 0) {  // lyginis - stumiu į priekį
 ```
 
 **IŠVADA:** stipresnė difuzija, nes maišymas priklauso individualiai nuo kiekvieno simbolio vertės. Pagerėjo avalanche efektas nuo 1.5% iki 12.6%.
+
+### 4.1 užduotis: patobulinimas kitame maišymo algoritme - aka SUPER MAIŠYMAS
+
+Idėja buvo, kad ne vienas elementas pasikeičia, bet ir pasikeičia kiti elementai dėl jo. Kad algoritmas labai nesulėtėtų, pasirinkau padaryt taip, kad nuo vieno elemento pasikeičia kiti 3 elementai. 
+
+**Kodas:**
+```
+void super3mixer(vector<int>& masyvas) {
+        if (masyvas.empty()) return;
+        vector<int> temp = masyvas; // kopija, kad nepaveiktu vienas kito
+        
+        for (size_t i = 0; i < temp.size(); ++i) {
+            int sk = temp[i];
+
+            size_t e1 = (i + sk) % masyvas.size();
+            size_t e2 = (i + sk * 2) % masyvas.size();
+            size_t e3 = (i + sk * 3) % masyvas.size();
+
+            // dar biski pagrazinnu ir grazinu i 0-255 intervala
+            masyvas[e1] = (masyvas[e1] + sk) % 256;
+            masyvas[e2] = (masyvas[e2] + sk * 2) % 256;
+            masyvas[e3] = (masyvas[e3] + sk * 3) % 256;
+        }
+    }
+```
+
+**Testai:**
+* Palyginus hash'us žodžių `"test"` ir `"tast"` (skiriasi tik 1 raide)
+* Dabar 39% bitų pasikeičia (buvo tik 1.5%)
+* 94% simbolių pasikeičia
+  
+**IŠVADA:** labai labai pagerėjo avalanche.
 
 ### 5 užduotis: OpenMP į testus
 
