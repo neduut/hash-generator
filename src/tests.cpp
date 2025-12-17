@@ -13,8 +13,8 @@
 // Pagal numatymą, naudojame AI patobulintą hash
 std::string generateHash(const std::string& input) {
     // Galima pakeisti į generate_hash() norint testuoti originalų hash'ą
-    // return generate_hash(input);
-    return generate_ai_hash(input);
+    return generate_hash(input);
+    // return generate_ai_hash(input);
 }
 #include <cstring>     // std::strchr
 #include <omp.h>       // OpenMP for parallel tests
@@ -25,7 +25,6 @@ std::string generateHash(const std::string& input) {
 
 namespace fs = std::filesystem;
 
-// ======== Gražesni konsolės pranešimai / spalvos / runneris ========
 namespace ui {
     // ANSI spalvos (jei nepalaikoma – bus tiesiog tekstas)
     static constexpr const char* RESET = "\033[0m";

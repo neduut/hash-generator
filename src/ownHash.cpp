@@ -22,6 +22,12 @@ namespace {
         return BASE62[sk];
     }
 
+    // pavercia skaičių į HEX simbolį (0-9, a-f)
+    inline char to_hex(int sk) {
+        constexpr char HEX[] = "0123456789abcdef";
+        return HEX[sk % 16];
+    }
+
     // elementai maisomi priklausomai nuo ju vertes
     void value_dependent_shuffle(vector<int>& previous) {
         if (previous.empty()) return;
@@ -43,17 +49,6 @@ namespace {
             
             previous[new_pos] = value;
         }
-    }
-
-    // padalina per puse ir sukeicia vietomis
-    void swap_halves(vector<int>& previous) {
-        size_t n = previous.size();
-        size_t h = n / 2; // antroji pusė bus ilgesnė jei nelyginis dydis
-        vector<int> first(previous.begin(), previous.begin() + h);
-        vector<int> second(previous.begin() + h, previous.end());
-        previous.clear();
-        previous.insert(previous.end(), second.begin(), second.end());
-        previous.insert(previous.end(), first.begin(), first.end());
     }
 
     // pagrindinis masymas - kiekvienas elementas paveiks 3 kitus
@@ -134,9 +129,6 @@ string generate_hash(const string& user_input) {
         // c) maisymas kur vienas elementas paveikia kitus 3 - stipriausias efektas
         three_in_one_mixer(previous);
 
-        // d) padalinu masyva per puse ir sukeiciu dalis vietomis - finalus permutation
-        swap_halves(previous);
-
         // jei tuscia ivestis
         if (previous.empty()) {
             previous.push_back(0);
@@ -178,14 +170,19 @@ string generate_hash(const string& user_input) {
         seed[si] = to_base62(rez % 62); // mod 62 kad griztu i base62 simboli
     }
 
-    // 6) sukuriu galutini hash – 64 base62 simboliai
+    // 6) sukuriu galutini hash – 64 HEX simboliai (blockchain standartui)
     string out;
     out.reserve(64);
     for (int i = 0; i < 64; ++i) {
-        int a = (int)(unsigned char)seed[i % seed.size()]; // seed simbolis (ratu)
-        int b = previous[i % previous.size()]; // masyvo elementas (ratu)
-        int v = (a + b + i * 17) % 62; // pozicijos itaka ir mod 62
-        out.push_back(to_base62(v));
+        int a = (int)(unsigned char)seed[i % seed.size()];
+        int b = previous[i % previous.size()];
+        int v = ((a * 31) ^ (b * 17) ^ (i * 13)) % 256;
+        // Konvertuojame į HEX: kiekvienas byte -> 2 hex simboliai
+        if (i % 2 == 0) {
+            out.push_back(to_hex((v + a) / 16));  // aukštesnysis nibble
+        } else {
+            out.push_back(to_hex((v + b) % 16));  // žemesnysis nibble
+        }
     }
 
     return out;

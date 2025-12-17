@@ -660,3 +660,57 @@ OK hiding (1ms)
 SUMMARY: OK
 ABORT: input error
 ========================================
+========================================
+TEST SESSION START @ 2025-10-16 19:32:56
+[PERFORMANCE] 2025-10-16 19:32:58
+lines,avg_ms
+1,0.00
+2,0.00
+4,0.00
+8,0.00
+16,0.00
+32,0.00
+64,0.00
+128,0.00
+256,2.00
+512,4.40
+
+[COLLISIONS] 2025-10-16 19:32:58  NUM_PAIRS=100000 THREADS=24
+L=10, collisions=0, rate=0.000000%, compute_time=54ms, total_time=69ms
+L=100, collisions=0, rate=0.000000%, compute_time=170ms, total_time=296ms
+L=500, collisions=0, rate=0.000000%, compute_time=763ms, total_time=1410ms
+L=1000, collisions=0, rate=0.000000%, compute_time=1521ms, total_time=2825ms
+TOTAL_TIME=4697ms, THREADS=24
+
+[AVALANCHE] 2025-10-16 19:33:03  NUM_PAIRS=100000 LEN=200 THREADS=24
+TIMING: data_gen=145ms, compute=371ms, total=517ms
+THROUGHPUT: 539083.6 hash/s
+bits%  min=0.000  max=41.667  avg=28.418
+hex%   min=0.000  max=50.000  avg=41.437
+
+[HIDING] 2025-10-16 19:33:03
+salt="salt1" -> 1854d86ad8496afdfc63414242a461d3085c98b6368d94c9dcfb3dc2e0ea89bb
+salt="salt1" -> 1854d86ad8496afdfc63414242a461d3085c98b6368d94c9dcfb3dc2e0ea89bb
+salt="salt2" -> 2ea4c0c3789d4e5327ad34166ca65defa2262e13089172ebe7bd8cfa2a6af91f
+salt="ilgesnis_saltas_123" -> 4aac3e94d4ab840bf4f714fc4625521f8654127ae2cbbcb314b7ae405459be2f
+salt="!" -> de983277a080ca018868be2e1a71934dd026cec71e80f6b1d858ae82c8790b31
+salt="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -> cda62a085ac4d19df2741e1444d202636138d6382aeafddda27040065cac645b
+[2025-10-16 19:32:58] RUN 1 - išvedimo dydis
+OK 1 - išvedimo dydis
+OK išvedimo dydis (1ms)
+[2025-10-16 19:32:58] RUN 2 - deterministiškumas
+OK 2 - deterministiškumas
+OK deterministiškumas (2ms)
+[2025-10-16 19:32:58] RUN 4 - efektyvumas
+OK 4 - efektyvumas
+OK efektyvumas (66ms)
+[2025-10-16 19:32:58] RUN 5 - kolizijos (100000 porų), threads=24
+OK 5 - kolizijos
+OK kolizijos (4698ms)
+[2025-10-16 19:33:03] RUN 6 - lavina (100000 porų), threads=24
+OK 6 - lavina
+OK lavinos efektas (536ms)
+[2025-10-16 19:33:03] RUN 7 - hiding
+OK 7 - hiding
+OK hiding (0ms)
+SUMMARY: OK
