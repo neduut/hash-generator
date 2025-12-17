@@ -5,7 +5,7 @@
 ## Palyginimas su standartiniais hash algoritmais
 
 ### Efektyvumas (laikas milisekundėmis)
-*Naudotas files/konstitucija.txt failas, 24 OpenMP thread'ai.*
+Naudotas `files/konstitucija.txt` failas.
 
 | Eilučių kiekis | Neda (v0.1final) | SHA-256 | MD5 |
 |:---:|:---:|:---:|:---:|
@@ -51,7 +51,7 @@
 ## Palyginimas su kitų studentų hash algoritmais
 
 ### Efektyvumas (laikas milisekundėmis)
-*Naudotas files/konstitucija.txt failas, 24 OpenMP thread'ai.*
+Naudotas `files/konstitucija.txt` failas.
 
 | Eilučių kiekis | Nerijus | Nikita | Neda (v0.1final) | Miglė | Gustavo | Vanesa |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
