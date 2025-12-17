@@ -3,7 +3,7 @@
 
 #include <string>
 
-// Vanesės hash funkcija (256-bit)
+// Vanesos hash funkcija (64-char hex)
 std::string generate_vanesa_hash(const std::string& input);
 
 #endif

@@ -1,76 +1,131 @@
 #include "vanesa_hash.h"
 #include <sstream>
 #include <iomanip>
-#include <vector>
-#include <array>
-#include <utility>
+#include <bitset>
+#include <map>
+#include <random>
+#include <locale>
+#include <codecvt>
 #include <cstdint>
 
-// bubble sort (rikiuoja pagal baito reikšmę) su hash skaičiavimu per swap'us (256 bit)
-static std::array<uint32_t, 8> bubble_sort_and_hash(std::vector<char>& arr, std::array<uint32_t, 8> seed) {
-    int n = (int)arr.size();
+static std::map<wchar_t, uint16_t> getLithuanianCharMap() {
+    std::map<wchar_t, uint16_t> charMap;
+    charMap[L'ą'] = 0xC485; charMap[L'č'] = 0xC48D; charMap[L'ę'] = 0xC499;
+    charMap[L'ė'] = 0xC497; charMap[L'į'] = 0xC4AF; charMap[L'š'] = 0xC5A1;
+    charMap[L'ų'] = 0xC5B3; charMap[L'ū'] = 0xC5AB; charMap[L'ž'] = 0xC5BE;
+    charMap[L'Ą'] = 0xC484; charMap[L'Č'] = 0xC48C; charMap[L'Ę'] = 0xC498;
+    charMap[L'Ė'] = 0xC496; charMap[L'Į'] = 0xC4AE; charMap[L'Š'] = 0xC5A0;
+    charMap[L'Ų'] = 0xC5B2; charMap[L'Ū'] = 0xC5AA; charMap[L'Ž'] = 0xC5BD;
+    return charMap;
+}
 
-    for (int i = 0; i < n - 1; ++i) {
-        for (int j = 0; j < n - 1 - i; ++j) {
-            if (arr[j] > arr[j+1]) {
-                // kai sukeičiam elementus, atnaujinam hash
-                unsigned int a = (unsigned char)arr[j];
-                unsigned int b = (unsigned char)arr[j+1];
-
-                int idx = j % 8; // pasirenkam, kurį 32-bit bloką keisti
-                seed[idx] = (seed[idx] << 5) + (seed[idx] >> 3) + (a * 17 + b * 31 + j * 13);
-
-                std::swap(arr[j], arr[j+1]);
-            }
+static std::string convertLithuanianText(const std::string &input) {
+    static auto charMap = getLithuanianCharMap();
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+    std::wstring wide = conv.from_bytes(input);
+    std::string result;
+    
+    for (wchar_t wc : wide) {
+        auto it = charMap.find(wc);
+        if (it != charMap.end()) {
+            uint16_t code = it->second;
+            result.push_back(static_cast<char>((code >> 8) & 0xFF));
+            result.push_back(static_cast<char>(code & 0xFF));
+        } else {
+            std::string utf8char = conv.to_bytes(wc);
+            result += utf8char;
         }
     }
-    return seed;
+    return result;
 }
 
-// salt (16 baitų)
-static std::vector<uint8_t> make_salt(const std::string& msg) { 
-    std::vector<uint8_t> salt(16, 0); // sukuriam tuščią salt
-    for (size_t i = 0; i < msg.size(); i++) {
-        // kiekviena raidė įmaišom į vieną iš 16 baitų (ASCII + pozicija*13), 0xFF kad neviršytų 255
-        salt[i % 16] = (salt[i % 16] + (uint8_t)msg[i] + (i * 13)) & 0xFF;
+static uint32_t safeStringToUint32(const std::string& str, const std::string& seedui) {
+    std::string truncated = str;
+    if (truncated.length() > 9) {
+        truncated = truncated.substr(0, 9);
     }
-    return salt;
-}
-
-// hash pavertimas į hex
-static std::string hash_to_hex(const std::array<uint32_t, 8>& h) {
-    std::ostringstream ss;
-    ss << std::hex << std::setfill('0');
-    for (uint32_t part : h) {
-        ss << std::setw(8) << part;
+    
+    uint32_t seed = 0;
+    for (unsigned char c : seedui) {
+        seed = seed * 31 + c;
     }
-    return ss.str();
+    uint32_t hash = seed;
+    
+    for (unsigned char c : truncated) {
+        hash = hash * seed + c;
+    }
+    return hash;
 }
 
-std::string generate_vanesa_hash(const std::string& msg) {
-    // salt
-    auto salt = make_salt(msg);
-
-    // data = salt + msg
-    std::vector<char> data;
-    data.reserve(salt.size() + msg.size());
-    for (uint8_t b : salt) data.push_back((char)b);
-    data.insert(data.end(), msg.begin(), msg.end());
+std::string generate_vanesa_hash(const std::string &ivestis) {
+    std::string isvestis;
+    std::string konvertuotasIvestis = convertLithuanianText(ivestis);
     
-    // seed: 8 reikšmės po 32 bitus
-    std::array<uint32_t, 8> seed = {
-        (uint32_t)msg.length() * 123,            // ilgio seed
-        (uint32_t)(unsigned char)msg.front() * 4567, // pirmo simbolio ASCII * konstanta
-        (uint32_t)(unsigned char)msg.back() * 8910,  // paskutinio simbolio ASCII * konstanta
-        (uint32_t)(msg.length() << 16) ^ 0xDEAD,     // ilgis pastumtas
-        0xAAAAAAAAu ^ (uint32_t)msg.length(),        // XOR su ilgiu
-        0x55555555u + (uint32_t)msg.length(),        // šita konstanta
-        0xF0F0F0F0u ^ (unsigned char)msg[0],         // pirmo simbolio įtaka
-        0x0F0F0F0Fu ^ (unsigned char)msg.back()      // paskutinio simbolio įtaka
-    };
-
-    // paleidžiam bubble sort su hash skaičiavimu
-    auto h = bubble_sort_and_hash(data, seed);
+    std::string seedString;
+    std::string seedui;
+    if (!konvertuotasIvestis.empty()) {
+        for (size_t i = 0; i < konvertuotasIvestis.size(); i += 1000) {
+            int suma = 0;
+            for (size_t j = i; j < i + 10 && j < konvertuotasIvestis.size(); j++) {
+                suma += static_cast<unsigned char>(konvertuotasIvestis[j]);
+            }
+            seedString += std::to_string(suma);
+        }
+        
+        for (size_t i = 0; i < konvertuotasIvestis.size(); i += 20) {
+            int ones = 0;
+            for (size_t j = i; j < i + 20 && j < konvertuotasIvestis.size(); j++) {
+                std::bitset<8> bits(static_cast<unsigned char>(konvertuotasIvestis[j]));
+                ones += bits.count();
+            }
+            seedString += std::to_string(ones);
+            seedui += std::to_string(ones);
+        }
+    } else {
+        seedString = "0";
+    }
     
-    return hash_to_hex(h);
+    std::string binaryInput;
+    for (unsigned char c : konvertuotasIvestis) {
+        binaryInput += std::bitset<8>(c).to_string();
+    }
+    
+    if (binaryInput.empty()) {
+        binaryInput = "10000000";
+    }
+    
+    std::string originalBinary = binaryInput;
+    while (binaryInput.size() < 256) {
+        std::string toAdd = originalBinary;
+        for (size_t i = 0; i < toAdd.size() && binaryInput.size() < 256; i++) {
+            char newBit = (binaryInput[i % binaryInput.size()] == toAdd[i]) ? '0' : '1';
+            binaryInput += newBit;
+        }
+    }
+    if (binaryInput.size() > 256) {
+        binaryInput = binaryInput.substr(0, 256);
+    }
+    
+    uint32_t mySeed = safeStringToUint32(seedString, seedui);
+    std::mt19937 rng(mySeed);
+    
+    std::string mixedBinary;
+    for (size_t i = 0; i < binaryInput.size(); i += 32) {
+        uint32_t randVal = rng();
+        for (size_t j = 0; j < 32 && i + j < binaryInput.size(); j++) {
+            int bit = binaryInput[i + j] - '0';
+            int rbit = (randVal >> j) & 1;
+            bit ^= rbit;
+            mixedBinary.push_back(bit ? '1' : '0');
+        }
+    }
+    
+    for (size_t i = 0; i + 4 <= mixedBinary.size(); i += 4) {
+        std::string nibble = mixedBinary.substr(i, 4);
+        int value = std::stoi(nibble, nullptr, 2);
+        std::stringstream ss;
+        ss << std::hex << value;
+        isvestis += ss.str();
+    }
+    return isvestis;
 }
