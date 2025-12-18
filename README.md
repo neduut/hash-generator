@@ -2,7 +2,7 @@
 
 ---
 
-## Palyginimas su standartiniais hash algoritmais
+## Palyginimas su SHA-256 ir MD5
 
 ### Efektyvumas (laikas milisekundėmis)
 Naudotas `files/konstitucija.txt` failas.
@@ -70,7 +70,7 @@ Naudotas `files/konstitucija.txt` failas.
 ### Atsparumas kolizijoms
 
 | Vieno string poroje ilgis | Nerijus | Nikita | Neda (v0.1final) | Miglė | Gustavo | Vanesa |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | 10 | 0 | 0 | 0 | 0 | 0 | 0 |
 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 | 500 | 0 | 0 | 0 | 0 | 0 | 0 |
